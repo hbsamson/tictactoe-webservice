@@ -6,7 +6,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import com.svi.tictactoe.service.Hello;
+import com.svi.tictactoe.services.Hello;
 
 @Path("hello")
 public class HelloResource {
