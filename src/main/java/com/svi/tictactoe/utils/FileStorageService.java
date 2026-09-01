@@ -64,7 +64,7 @@ public class FileStorageService {
         String gameId = gameRecord.getGameid();
         Path gameFile = gameIdDir.resolve(gameId + ".txt");
         
-        String csvLine = gameRecord.toCSV();
+        String csvLine = gameRecord.toRecordFormat();
         
         // Append line to file (create if doesn't exist)
         Files.write(gameFile, (csvLine + "\n").getBytes(StandardCharsets.UTF_8),
@@ -150,7 +150,7 @@ public class FileStorageService {
         for (String line : lines) {
             if (line != null && !line.trim().isEmpty()) {
                 try {
-                    GameRecordDTO record = GameRecordDTO.fromCSV(line.trim());
+                    GameRecordDTO record = GameRecordDTO.fromRecordFormat(line.trim());
                     moves.add(record);
                 } catch (IllegalArgumentException e) {
                     // Skip malformed lines

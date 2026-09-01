@@ -6,9 +6,7 @@ public class GameListResponseDTO {
     private List<GameItem> list;
     private String msg;
 
-    // Constructors
-    public GameListResponseDTO() {
-    }
+    public GameListResponseDTO() {}
 
     public GameListResponseDTO(List<GameItem> list, String msg) {
         this.list = list;
@@ -19,15 +17,13 @@ public class GameListResponseDTO {
     public List<GameItem> getList() {
         return list;
     }
-
-    public void setList(List<GameItem> list) {
-        this.list = list;
-    }
-
     public String getMsg() {
         return msg;
     }
 
+    public void setList(List<GameItem> list) {
+        this.list = list;
+    }
     public void setMsg(String msg) {
         this.msg = msg;
     }

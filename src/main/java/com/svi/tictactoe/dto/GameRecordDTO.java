@@ -17,23 +17,26 @@ public class GameRecordDTO {
     }
 
     public String getGameid() { return gameid; }
-    public void setGameid(String gameid) { this.gameid = gameid; }
     public String getPlayerid() { return playerid; }
-    public void setPlayerid(String playerid) { this.playerid = playerid; }
     public String getSymbol() { return symbol; }
-    public void setSymbol(String symbol) { this.symbol = symbol; }
     public String getLocation() { return location; }
-    public void setLocation(String location) { this.location = location; }
     public String getDatesave() { return datesave; }
+
+    public void setGameid(String gameid) { this.gameid = gameid; }
+    public void setPlayerid(String playerid) { this.playerid = playerid; }
+    public void setSymbol(String symbol) { this.symbol = symbol; }
+    public void setLocation(String location) { this.location = location; }
     public void setDatesave(String datesave) { this.datesave = datesave; }
 
-    public static GameRecordDTO fromCSV(String csvLine) {
+    public static GameRecordDTO fromRecordFormat(String csvLine) {
         String[] parts = csvLine.split(",");
-        if (parts.length != 5) throw new IllegalArgumentException("Invalid CSV format");
+        if (parts.length != 5) {
+            throw new IllegalArgumentException("Invalid Record format");
+        }
         return new GameRecordDTO(parts[0], parts[1], parts[2], parts[3], parts[4]);
     }
 
-    public String toCSV() {
+    public String toRecordFormat() {
         return String.format("%s,%s,%s,%s,%s", gameid, playerid, symbol, location, datesave);
     }
 }
