@@ -1,4 +1,4 @@
-package com.svi.jakarta.hello;
+package com.svi.tictactoe.service;
 
 public class Hello {
 

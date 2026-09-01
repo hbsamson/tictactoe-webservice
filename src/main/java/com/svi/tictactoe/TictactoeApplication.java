@@ -1,9 +1,9 @@
-package com.svi.jakarta.hello;
+package com.svi.tictactoe;
 
 import javax.ws.rs.core.Application;
 import javax.ws.rs.ApplicationPath;
 
 @ApplicationPath("rest")
-public class HelloApplication extends Application {
+public class TictactoeApplication extends Application {
     // Needed to enable Jakarta REST and specify path.
 }
