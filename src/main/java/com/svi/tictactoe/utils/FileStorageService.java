@@ -9,6 +9,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 import com.svi.tictactoe.dto.GameRecordDTO;
+import com.svi.tictactoe.dto.RoomDTO;
 
 /**
  * Utility class for persisting game records to flat files.
@@ -16,11 +17,13 @@ import com.svi.tictactoe.dto.GameRecordDTO;
  * File structure:
  * - /records/playerid/<playerId>.txt: newline-delimited list of gameIds
  * - /records/gameid/<gameId>.txt: comma-delimited moves (CSV format)
+ * - /records/roomid/<roomCode>.txt: newline-delimited list of gameIds with dates
  */
 public class FileStorageService {
     private static final String RECORDS_DIR = "records";
     private static final String PLAYERID_SUBDIR = "playerid";
     private static final String GAMEID_SUBDIR = "gameid";
+    private static final String ROOMID_SUBDIR = "roomid";
 
     /**
      * Get or create the /records directory at project root.
@@ -50,6 +53,16 @@ public class FileStorageService {
         Path gameIdPath = getRecordsDirectory().resolve(GAMEID_SUBDIR);
         Files.createDirectories(gameIdPath);
         return gameIdPath;
+    }
+
+    /**
+     * Get or create the /records/roomid directory.
+     * Returns the directory path.
+     */
+    public static Path getRoomIdDirectory() throws IOException {
+        Path roomIdPath = getRecordsDirectory().resolve(ROOMID_SUBDIR);
+        Files.createDirectories(roomIdPath);
+        return roomIdPath;
     }
 
     /**
@@ -186,5 +199,89 @@ public class FileStorageService {
         Path gameIdDir = getGameIdDirectory();
         Path gameFile = gameIdDir.resolve(gameId + ".txt");
         return Files.exists(gameFile) && Files.size(gameFile) > 0;
+    }
+
+    /**
+     * Add a gameId to a room's game list file.
+     * Creates the file if it doesn't exist.
+     * Avoids duplicate entries.
+     * Format: gameId,createdDate (newline-delimited)
+     * 
+     * @param roomCode The room code
+     * @param gameId The game ID to add
+     * @param createdDate The creation date of the game
+     * @throws IOException if file I/O fails
+     */
+    public static void appendGameToRoom(String roomCode, String gameId, String createdDate) throws IOException {
+        Path roomIdDir = getRoomIdDirectory();
+        Path roomFile = roomIdDir.resolve(roomCode + ".txt");
+        
+        // Check if this game already exists in file
+        Set<String> existingGames = new HashSet<>();
+        if (Files.exists(roomFile)) {
+            List<String> lines = Files.readAllLines(roomFile, StandardCharsets.UTF_8);
+            for (String line : lines) {
+                if (line != null && !line.trim().isEmpty()) {
+                    String[] parts = line.split(",");
+                    if (parts.length > 0) {
+                        existingGames.add(parts[0].trim());
+                    }
+                }
+            }
+        }
+        
+        // Add only if this game ID not already present
+        if (!existingGames.contains(gameId)) {
+            String roomEntry = String.format("%s,%s", gameId, createdDate);
+            Files.write(roomFile, (roomEntry + "\n").getBytes(StandardCharsets.UTF_8),
+                    StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+        }
+    }
+
+    /**
+     * Read all games for a room.
+     * Returns empty list if room file doesn't exist.
+     * 
+     * @param roomCode The room code
+     * @return List of RoomDTO objects for this room
+     * @throws IOException if file I/O fails
+     */
+    public static List<RoomDTO> readRoomGames(String roomCode) throws IOException {
+        Path roomIdDir = getRoomIdDirectory();
+        Path roomFile = roomIdDir.resolve(roomCode + ".txt");
+        
+        if (!Files.exists(roomFile)) {
+            return Collections.emptyList();
+        }
+        
+        List<RoomDTO> roomGames = new ArrayList<>();
+        List<String> lines = Files.readAllLines(roomFile, StandardCharsets.UTF_8);
+        
+        for (String line : lines) {
+            if (line != null && !line.trim().isEmpty()) {
+                try {
+                    RoomDTO room = RoomDTO.fromRecordFormat(roomCode, line.trim());
+                    roomGames.add(room);
+                } catch (IllegalArgumentException e) {
+                    // Skip malformed lines
+                    System.err.println("Skipping malformed room record line: " + line);
+                }
+            }
+        }
+        
+        return roomGames;
+    }
+
+    /**
+     * Check if a room has any recorded games.
+     * 
+     * @param roomCode The room code
+     * @return true if room file exists and has content
+     * @throws IOException if file I/O fails
+     */
+    public static boolean roomExists(String roomCode) throws IOException {
+        Path roomIdDir = getRoomIdDirectory();
+        Path roomFile = roomIdDir.resolve(roomCode + ".txt");
+        return Files.exists(roomFile) && Files.size(roomFile) > 0;
     }
 }
