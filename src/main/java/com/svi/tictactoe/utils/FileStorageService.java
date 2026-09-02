@@ -74,7 +74,7 @@ public class FileStorageService {
      */
     public static void appendMoveToGame(GameRecordDTO gameRecord) throws IOException {
         Path gameIdDir = getGameIdDirectory();
-        String gameId = gameRecord.getGameid();
+        String gameId = gameRecord.getGameId();
         Path gameFile = gameIdDir.resolve(gameId + ".txt");
         
         String csvLine = gameRecord.toRecordFormat();
@@ -137,6 +137,70 @@ public class FileStorageService {
             }
         }
         
+        return games;
+    }
+
+    /**
+     * Read the player name associated with a game.
+     * Uses the first valid move record for the game and returns its playerName.
+     * Returns null if the game file does not exist or no player name is stored.
+     *
+     * @param gameId The game's ID
+     * @return player name for the game, or null if unavailable
+     * @throws IOException if file I/O fails
+     */
+    public static String readPlayerName(String gameId) throws IOException {
+        Path gameIdDir = getGameIdDirectory();
+        Path gameFile = gameIdDir.resolve(gameId + ".txt");
+
+        if (!Files.exists(gameFile)) {
+            return null;
+        }
+
+        List<String> lines = Files.readAllLines(gameFile, StandardCharsets.UTF_8);
+        for (String line : lines) {
+            if (line != null && !line.trim().isEmpty()) {
+                try {
+                    GameRecordDTO record = GameRecordDTO.fromRecordFormat(line.trim());
+                    if (record.getPlayerName() != null && !record.getPlayerName().trim().isEmpty()) {
+                        return record.getPlayerName().trim();
+                    }
+                } catch (IllegalArgumentException e) {
+                    // Skip malformed lines
+                    System.err.println("Skipping malformed game record line: " + line);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Read all info for a game.
+     * Returns empty list if game id file doesn't exist.
+     *
+     * @param gameId The game's ID
+     * @return List of gameId, playerID, symbol, location, dateSaved
+     * @throws IOException if file I/O fails
+     */
+    public static List<String> readGames(String gameId) throws IOException {
+        Path gameIdDir = getGameIdDirectory();
+        Path gameFile = gameIdDir.resolve(gameId + ".txt");
+
+        if (!Files.exists(gameFile)) {
+            return Collections.emptyList();
+        }
+
+        List<String> lines = Files.readAllLines(gameFile, StandardCharsets.UTF_8);
+
+        // Filter out empty lines
+        List<String> games = new ArrayList<>();
+        for (String line : lines) {
+            if (line != null && !line.trim().isEmpty()) {
+                games.add(line.trim());
+            }
+        }
+
         return games;
     }
 

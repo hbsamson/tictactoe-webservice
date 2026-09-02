@@ -3,6 +3,7 @@ package com.svi.tictactoe.rest;
 import com.svi.tictactoe.dto.GameRecordDTO;
 import com.svi.tictactoe.dto.SaveResponseDTO;
 import com.svi.tictactoe.dto.GameListResponseDTO;
+import com.svi.tictactoe.dto.GameRecordListResponseDTO;
 import com.svi.tictactoe.services.GameService;
 
 import javax.ws.rs.GET;
@@ -15,7 +16,6 @@ import java.util.UUID;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -50,11 +50,11 @@ public class GameResource {
         if (record == null) {
             return false;
         }
-        return record.getGameid() != null && !record.getGameid().trim().isEmpty() && isValidUUID(record.getGameid()) &&
-               record.getPlayerid() != null && !record.getPlayerid().trim().isEmpty() && isValidUUID(record.getPlayerid()) &&
+        return record.getGameId() != null && !record.getGameId().trim().isEmpty() && isValidUUID(record.getGameId()) &&
+               record.getPlayerId() != null && !record.getPlayerId().trim().isEmpty() && isValidUUID(record.getPlayerId()) &&
                record.getSymbol() != null && ("X".equals(record.getSymbol().trim()) || "O".equals(record.getSymbol().trim())) &&
                record.getLocation() != null && record.getLocation().matches("[0-9]") &&
-               record.getDatesave() != null && !record.getDatesave().trim().isEmpty();
+               record.getDateSaved() != null && !record.getDateSaved().trim().isEmpty();
     }
 
     private boolean isValidUUID(String value) {
@@ -87,6 +87,31 @@ public class GameResource {
             }
             return Response.status(500)
                     .entity(new GameListResponseDTO(null, "The server ran into an unexpected exception."))
+                    .build();
+        }
+    }
+
+    @GET
+    @Path("/{gameId}")
+    public Response getGameDetails(@PathParam("gameId") String gameId) {
+        if (gameId == null || gameId.trim().isEmpty() || !isValidUUID(gameId)) {
+            return Response.status(400)
+                    .entity(new GameRecordListResponseDTO(null, "Invalid gameId format."))
+                    .build();
+        }
+
+        try {
+            GameRecordListResponseDTO response = gameService.getGameDetails(gameId);
+            return Response.ok(response).build();
+            
+        } catch (IOException e) {
+            if (e.getMessage() != null && e.getMessage().contains("Game not found")) {
+                return Response.status(402)
+                        .entity(new GameRecordListResponseDTO(null, "Record not found"))
+                        .build();
+            }
+            return Response.status(500)
+                    .entity(new GameRecordListResponseDTO(null, "The server ran into an unexpected exception."))
                     .build();
         }
     }

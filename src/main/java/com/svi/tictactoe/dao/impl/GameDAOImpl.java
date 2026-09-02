@@ -35,6 +35,15 @@ public class GameDAOImpl implements GameDAO {
     }
 
     @Override
+    public String readPlayerName(String gameId) throws IOException {
+        return FileStorageService.readPlayerName(gameId);
+    }
+
+    public List<String> readGames(String gameId) throws IOException {
+        return FileStorageService.readGames(gameId);
+    }
+
+    @Override
     public List<RoomDTO> readRoomGames(String roomCode) throws IOException {
         return FileStorageService.readRoomGames(roomCode);
     }

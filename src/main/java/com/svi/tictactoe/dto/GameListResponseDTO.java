@@ -36,24 +36,29 @@ public class GameListResponseDTO {
     }
 
     /**
-     * Inner class representing a single item in the list (e.g., a game ID).
+     * Inner class representing a single item in the list (game ID).
      */
     public static class GameItem {
         private String id;
+        private String playerName;
 
         public GameItem() {}
-        public GameItem(String id) {
+        public GameItem(String id, String playerName) {
             this.id = id;
+            this.playerName = playerName;
         }
 
         public String getId() { return id; }
+        public String getPlayerName() { return playerName; }
 
         public void setId(String id) { this.id = id; }
+        public void setPlayerName(String playerName) { this.playerName = playerName; }
 
         @Override
         public String toString() {
-            return "GameItem{" + "id='" + id + '\'' + '}'; }
+            return "PlayerListGames{" + "id='" + id +
+            ", playerName='" + playerName + '\'' +
+            '}';
+        }
     }
-
-   
 }
