@@ -2,35 +2,35 @@ package com.svi.tictactoe.resource;
 
 import com.svi.tictactoe.dto.GameRecordDTO;
 import com.svi.tictactoe.dto.response.SaveResponseDTO;
-import com.svi.tictactoe.dto.response.GameListResponseDTO;
 import com.svi.tictactoe.dto.response.GameRecordListResponseDTO;
 import com.svi.tictactoe.services.GameService;
 import com.svi.tictactoe.services.impl.GameServiceImpl;
+import com.svi.tictactoe.utils.Validators;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-
-import java.io.IOException;
-import java.util.UUID;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import java.io.IOException;
+
+import static com.svi.tictactoe.utils.Validators.isValidUUID;
+
 
 @Path("/game")
-@Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
 public class GameResource {
     private GameService gameService = new GameServiceImpl();
 
     @POST
     @Path("/save")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response saveMove(GameRecordDTO record) {
-        if (!isValidRecord(record)) {
+        if (!Validators.isValidRecord(record)) {
             return Response.status(401)
                     .entity(new SaveResponseDTO("Record could not be saved"))
                     .build();
@@ -47,55 +47,12 @@ public class GameResource {
         }
     }
 
-    private boolean isValidRecord(GameRecordDTO record) {
-        if (record == null) {
-            return false;
-        }
-        return record.getGameId() != null && !record.getGameId().trim().isEmpty() && isValidUUID(record.getGameId()) &&
-               record.getPlayerId() != null && !record.getPlayerId().trim().isEmpty() && isValidUUID(record.getPlayerId()) &&
-               record.getSymbol() != null && ("X".equals(record.getSymbol().trim()) || "O".equals(record.getSymbol().trim())) &&
-               record.getLocation() != null && record.getLocation().matches("[0-9]") &&
-               record.getDateSaved() != null && !record.getDateSaved().trim().isEmpty();
-    }
-
-    private boolean isValidUUID(String value) {
-        try {
-            UUID.fromString(value);
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
-    }
-
-    @GET
-    @Path("/list-games/{playerId}")
-    public Response listPlayerGames(@PathParam("playerId") String playerId) {
-        if (playerId == null || playerId.trim().isEmpty() || !isValidUUID(playerId)) {
-            return Response.status(400)
-                    .entity(new GameListResponseDTO(null, "Invalid playerId format."))
-                    .build();
-        }
-
-        try {
-            GameListResponseDTO response = gameService.getPlayerGames(playerId);
-            return Response.ok(response).build();
-            
-        } catch (IOException e) {
-            if (e.getMessage() != null && e.getMessage().contains("Player not found")) {
-                return Response.status(402)
-                        .entity(new GameListResponseDTO(null, "Record not found"))
-                        .build();
-            }
-            return Response.status(500)
-                    .entity(new GameListResponseDTO(null, "The server ran into an unexpected exception."))
-                    .build();
-        }
-    }
-
     @GET
     @Path("/{gameId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response getGameDetails(@PathParam("gameId") String gameId) {
-        if (gameId == null || gameId.trim().isEmpty() || !isValidUUID(gameId)) {
+        if (gameId == null || gameId.trim().isEmpty() || !Validators.isValidUUID(gameId)) {
             return Response.status(400)
                     .entity(new GameRecordListResponseDTO(null, "Invalid gameId format."))
                     .build();
