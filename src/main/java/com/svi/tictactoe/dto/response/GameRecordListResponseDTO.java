@@ -1,4 +1,6 @@
-package com.svi.tictactoe.dto;
+package com.svi.tictactoe.dto.response;
+
+import com.svi.tictactoe.dto.GameRecordDTO;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.svi.tictactoe.dto;
+package com.svi.tictactoe.dto.response;
 
 public class SaveResponseDTO {
     private String msg;

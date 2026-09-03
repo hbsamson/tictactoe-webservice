@@ -1,10 +1,11 @@
-package com.svi.tictactoe.rest;
+package com.svi.tictactoe.resource;
 
 import com.svi.tictactoe.dto.GameRecordDTO;
-import com.svi.tictactoe.dto.SaveResponseDTO;
-import com.svi.tictactoe.dto.GameListResponseDTO;
-import com.svi.tictactoe.dto.GameRecordListResponseDTO;
+import com.svi.tictactoe.dto.response.SaveResponseDTO;
+import com.svi.tictactoe.dto.response.GameListResponseDTO;
+import com.svi.tictactoe.dto.response.GameRecordListResponseDTO;
 import com.svi.tictactoe.services.GameService;
+import com.svi.tictactoe.services.impl.GameServiceImpl;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -24,7 +25,7 @@ import javax.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class GameResource {
-    private GameService gameService = new GameService();
+    private GameService gameService = new GameServiceImpl();
 
     @POST
     @Path("/save")

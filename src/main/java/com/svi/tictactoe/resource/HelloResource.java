@@ -1,4 +1,4 @@
-package com.svi.tictactoe.rest;
+package com.svi.tictactoe.resource;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

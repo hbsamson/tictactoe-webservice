@@ -1,15 +1,16 @@
-package com.svi.tictactoe.utils;
+package com.svi.tictactoe.services.impl;
 
-import java.io.*;
+import com.svi.tictactoe.dto.GameRecordDTO;
+import com.svi.tictactoe.dto.RoomDTO;
+import com.svi.tictactoe.services.FileStorageService;
+
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
-
-import com.svi.tictactoe.dto.GameRecordDTO;
-import com.svi.tictactoe.dto.RoomDTO;
 
 /**
  * Utility class for persisting game records to flat files.
@@ -19,17 +20,18 @@ import com.svi.tictactoe.dto.RoomDTO;
  * - /records/gameid/<gameId>.txt: comma-delimited moves (CSV format)
  * - /records/roomid/<roomCode>.txt: newline-delimited list of gameIds with dates
  */
-public class FileStorageService {
-    private static final String RECORDS_DIR = "records";
-    private static final String PLAYERID_SUBDIR = "playerid";
-    private static final String GAMEID_SUBDIR = "gameid";
-    private static final String ROOMID_SUBDIR = "roomid";
+public class FileStorageServiceImpl implements FileStorageService {
+    private final String RECORDS_DIR = "records";
+    private final String PLAYERID_SUBDIR = "playerid";
+    private final String GAMEID_SUBDIR = "gameid";
+    private final String ROOMID_SUBDIR = "roomid";
 
     /**
      * Get or create the /records directory at project root.
      * Returns the directory path.
      */
-    public static Path getRecordsDirectory() throws IOException {
+    @Override
+    public Path getRecordsDirectory() throws IOException {
         Path recordsPath = Paths.get(RECORDS_DIR).toAbsolutePath();
         Files.createDirectories(recordsPath);
         return recordsPath;
@@ -39,7 +41,8 @@ public class FileStorageService {
      * Get or create the /records/playerid directory.
      * Returns the directory path.
      */
-    public static Path getPlayerIdDirectory() throws IOException {
+    @Override
+    public Path getPlayerIdDirectory() throws IOException {
         Path playerIdPath = getRecordsDirectory().resolve(PLAYERID_SUBDIR);
         Files.createDirectories(playerIdPath);
         return playerIdPath;
@@ -49,7 +52,8 @@ public class FileStorageService {
      * Get or create the /records/gameid directory.
      * Returns the directory path.
      */
-    public static Path getGameIdDirectory() throws IOException {
+    @Override
+    public Path getGameIdDirectory() throws IOException {
         Path gameIdPath = getRecordsDirectory().resolve(GAMEID_SUBDIR);
         Files.createDirectories(gameIdPath);
         return gameIdPath;
@@ -59,7 +63,8 @@ public class FileStorageService {
      * Get or create the /records/roomid directory.
      * Returns the directory path.
      */
-    public static Path getRoomIdDirectory() throws IOException {
+    @Override
+    public Path getRoomIdDirectory() throws IOException {
         Path roomIdPath = getRecordsDirectory().resolve(ROOMID_SUBDIR);
         Files.createDirectories(roomIdPath);
         return roomIdPath;
@@ -72,7 +77,8 @@ public class FileStorageService {
      * @param gameRecord The move record to save
      * @throws IOException if file I/O fails
      */
-    public static void appendMoveToGame(GameRecordDTO gameRecord) throws IOException {
+    @Override
+    public void appendMoveToGame(GameRecordDTO gameRecord) throws IOException {
         Path gameIdDir = getGameIdDirectory();
         String gameId = gameRecord.getGameId();
         Path gameFile = gameIdDir.resolve(gameId + ".txt");
@@ -93,7 +99,8 @@ public class FileStorageService {
      * @param gameId The game ID to add
      * @throws IOException if file I/O fails
      */
-    public static void appendGameToPlayer(String playerId, String gameId) throws IOException {
+    @Override
+    public void appendGameToPlayer(String playerId, String gameId) throws IOException {
         Path playerIdDir = getPlayerIdDirectory();
         Path playerFile = playerIdDir.resolve(playerId + ".txt");
         
@@ -119,7 +126,8 @@ public class FileStorageService {
      * @return List of gameIds played by this player
      * @throws IOException if file I/O fails
      */
-    public static List<String> readPlayerGames(String playerId) throws IOException {
+    @Override
+    public List<String> readPlayerGames(String playerId) throws IOException {
         Path playerIdDir = getPlayerIdDirectory();
         Path playerFile = playerIdDir.resolve(playerId + ".txt");
         
@@ -149,7 +157,8 @@ public class FileStorageService {
      * @return player name for the game, or null if unavailable
      * @throws IOException if file I/O fails
      */
-    public static String readPlayerName(String gameId) throws IOException {
+    @Override
+    public String readPlayerName(String gameId) throws IOException {
         Path gameIdDir = getGameIdDirectory();
         Path gameFile = gameIdDir.resolve(gameId + ".txt");
 
@@ -183,7 +192,8 @@ public class FileStorageService {
      * @return List of gameId, playerID, symbol, location, dateSaved
      * @throws IOException if file I/O fails
      */
-    public static List<String> readGames(String gameId) throws IOException {
+    @Override
+    public List<String> readGames(String gameId) throws IOException {
         Path gameIdDir = getGameIdDirectory();
         Path gameFile = gameIdDir.resolve(gameId + ".txt");
 
@@ -213,7 +223,8 @@ public class FileStorageService {
      * @return List of GameRecord objects for this game
      * @throws IOException if file I/O fails
      */
-    public static List<GameRecordDTO> readGameMoves(String gameId) throws IOException {
+    @Override
+    public List<GameRecordDTO> readGameMoves(String gameId) throws IOException {
         Path gameIdDir = getGameIdDirectory();
         Path gameFile = gameIdDir.resolve(gameId + ".txt");
         
@@ -246,7 +257,8 @@ public class FileStorageService {
      * @return true if player file exists and has content
      * @throws IOException if file I/O fails
      */
-    public static boolean playerExists(String playerId) throws IOException {
+    @Override
+    public boolean playerExists(String playerId) throws IOException {
         Path playerIdDir = getPlayerIdDirectory();
         Path playerFile = playerIdDir.resolve(playerId + ".txt");
         return Files.exists(playerFile) && Files.size(playerFile) > 0;
@@ -259,7 +271,8 @@ public class FileStorageService {
      * @return true if game file exists and has content
      * @throws IOException if file I/O fails
      */
-    public static boolean gameExists(String gameId) throws IOException {
+    @Override
+    public boolean gameExists(String gameId) throws IOException {
         Path gameIdDir = getGameIdDirectory();
         Path gameFile = gameIdDir.resolve(gameId + ".txt");
         return Files.exists(gameFile) && Files.size(gameFile) > 0;
@@ -276,7 +289,8 @@ public class FileStorageService {
      * @param createdDate The creation date of the game
      * @throws IOException if file I/O fails
      */
-    public static void appendGameToRoom(String roomCode, String gameId, String createdDate) throws IOException {
+    @Override
+    public void appendGameToRoom(String roomCode, String gameId, String createdDate) throws IOException {
         Path roomIdDir = getRoomIdDirectory();
         Path roomFile = roomIdDir.resolve(roomCode + ".txt");
         
@@ -310,7 +324,8 @@ public class FileStorageService {
      * @return List of RoomDTO objects for this room
      * @throws IOException if file I/O fails
      */
-    public static List<RoomDTO> readRoomGames(String roomCode) throws IOException {
+    @Override
+    public List<RoomDTO> readRoomGames(String roomCode) throws IOException {
         Path roomIdDir = getRoomIdDirectory();
         Path roomFile = roomIdDir.resolve(roomCode + ".txt");
         
@@ -343,7 +358,8 @@ public class FileStorageService {
      * @return true if room file exists and has content
      * @throws IOException if file I/O fails
      */
-    public static boolean roomExists(String roomCode) throws IOException {
+    @Override
+    public boolean roomExists(String roomCode) throws IOException {
         Path roomIdDir = getRoomIdDirectory();
         Path roomFile = roomIdDir.resolve(roomCode + ".txt");
         return Files.exists(roomFile) && Files.size(roomFile) > 0;
