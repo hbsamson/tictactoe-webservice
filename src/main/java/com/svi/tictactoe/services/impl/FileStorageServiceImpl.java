@@ -1,5 +1,6 @@
 package com.svi.tictactoe.services.impl;
 
+import com.svi.tictactoe.config.Config;
 import com.svi.tictactoe.dto.GameRecordDTO;
 import com.svi.tictactoe.dto.RoomDTO;
 import com.svi.tictactoe.services.FileStorageService;
@@ -21,10 +22,10 @@ import java.util.*;
  * - /records/roomid/<roomCode>.txt: newline-delimited list of gameIds with dates
  */
 public class FileStorageServiceImpl implements FileStorageService {
-    private final String RECORDS_DIR = "records";
-    private final String PLAYERID_SUBDIR = "playerid";
-    private final String GAMEID_SUBDIR = "gameid";
-    private final String ROOMID_SUBDIR = "roomid";
+    private static final String RECORDS_DIR = Config.get(Config.Keys.RECORDS_DIR.value());
+    private static final String PLAYERID_SUBDIR = Config.get(Config.Keys.PLAYER_DIR.value());
+    private static final String GAMEID_SUBDIR = Config.get(Config.Keys.GAME_DIR.value());
+    private static final String ROOMID_SUBDIR = Config.get(Config.Keys.ROOM_DIR.value());
 
     /**
      * Get or create the /records directory at project root.
