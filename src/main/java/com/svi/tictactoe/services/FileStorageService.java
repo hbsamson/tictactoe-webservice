@@ -18,6 +18,7 @@ public interface FileStorageService {
     Path getPlayerIdDirectory() throws IOException;
     Path getGameIdDirectory() throws IOException;
     Path getRoomIdDirectory() throws IOException;
+
     void appendMoveToGame(GameRecordDTO gameRecord) throws IOException;
     void appendGameToPlayer(String playerId, String gameId) throws IOException;
     List<String> readPlayerGames(String playerId) throws IOException;
