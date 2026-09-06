@@ -14,22 +14,44 @@ import com.svi.tictactoe.utils.Validators;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class GameServiceImpl implements GameService {
-    private GameDAO gameDAO = new GameDAOImpl();
+    private static final Object SAVE_MOVE_LOCK = new Object();
+    private final GameDAO gameDAO;
+
+    public GameServiceImpl() {
+        this(new GameDAOImpl());
+    }
+
+    public GameServiceImpl(GameDAO gameDAO) {
+        this.gameDAO = Objects.requireNonNull(gameDAO, "gameDAO");
+    }
 
     @Override
     public ServiceResponseDTO<SaveResponseDTO> saveMove(GameRecordDTO record) {
         if (!Validators.isValidRecord(record)) {
             return new ServiceResponseDTO<>(
-                    new SaveResponseDTO("Record could not be saved"),
-                    401
+                    new SaveResponseDTO("Invalid game record."),
+                    400
             );
         }
 
         try {
-            gameDAO.saveMove(record);
-            gameDAO.addGameToPlayer(record.getPlayerId(), record.getGameId());
+            synchronized (SAVE_MOVE_LOCK) {
+                List<GameRecordDTO> existingMoves = gameDAO.readMoves(record.getGameId());
+                for (GameRecordDTO existingMove : existingMoves) {
+                    if (existingMove != null && record.getLocation().equals(existingMove.getLocation())) {
+                        return new ServiceResponseDTO<>(
+                                new SaveResponseDTO("Location is already occupied."),
+                                409
+                        );
+                    }
+                }
+
+                gameDAO.saveMove(record);
+                gameDAO.addGameToPlayer(record.getPlayerId(), record.getGameId());
+            }
             return new ServiceResponseDTO<>(
                     new SaveResponseDTO("Record saved."),
                     200
