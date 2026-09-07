@@ -113,21 +113,22 @@ Records are returned in file/save order; the service does not sort by `dateSaved
 
 ### Save room/rematch games
 
-Both routes call the same operation:
+There is one room-save operation:
 
 ```http
-POST /api/game/room-key/save
 POST /api/room/save
 ```
 
 ```json
 {
-  "roomKey": "ABCDEF",
+  "roomId": "ABCDEF",
   "gameIds": ["1dffda51-f610-4adc-8720-8424dbab8bdc"]
 }
 ```
 
-`roomKey` is alphanumeric and 4–6 characters; every game ID must be a canonical UUID. IDs are deduplicated in insertion order.
+`roomId` is alphanumeric and 4–6 characters; every game ID must be a canonical UUID. IDs are deduplicated in insertion order and saved under `records/roomid/<roomId>.txt`.
+
+The request is deserialized into `RoomDTO`. The service creates one `createdDate` timestamp for the save operation and persists `gameId,createdDate` for each supplied game. The same `RoomDTO` is used for room responses, where `gameId` and `createdDate` describe an individual stored entry.
 
 - `200`: `{ "msg": "Room games saved." }`
 - `400`: invalid room key or game IDs
@@ -136,15 +137,15 @@ POST /api/room/save
 ### Get games in a room
 
 ```http
-GET /api/room/{roomCode}
+GET /api/room/{roomId}
 ```
 
-`roomCode` is alphanumeric and 4–6 characters. A successful response (`200`) is an array:
+`roomId` is alphanumeric and 4–6 characters. A successful response (`200`) is an array:
 
 ```json
 [
   {
-    "roomCode": "ABCDEF",
+    "roomId": "ABCDEF",
     "gameId": "1dffda51-f610-4adc-8720-8424dbab8bdc",
     "createdDate": "2021-11-11T01:00:00Z"
   }
@@ -169,7 +170,7 @@ The default records root is `records`:
 records/
 ├── gameid/<gameId>.txt       # one CSV move record per line
 ├── playerid/<playerId>.txt   # one game ID per line
-└── roomid/<roomCode>.txt     # gameId,createdDate per line
+└── roomid/<roomId>.txt       # gameId,createdDate per line
 ```
 
 Move records use either format:
@@ -190,8 +191,8 @@ The companion frontend is at [Tictactoe Webservices UI](https://github.com/hbsam
 - `POST /api/game/save` is called after each non-spectator move.
 - `GET /api/player/{playerId}/games` loads the history table.
 - `GET /api/game/{gameId}` loads the move details for each game.
-- `POST /api/room/save` associates the room's round IDs with its room code.
-- `GET /api/room/{roomCode}` is available to retrieve room records, although the current history flow does not require it.
+- `POST /api/room/save` associates the room's round IDs with its room ID.
+- `GET /api/room/{roomId}` is available to retrieve room records, although the current history flow does not require it.
 
 The frontend also includes the required History link, player-ID search, game table, move details, and replay button. It sorts retrieved moves by `dateSaved` before rendering/replay. Gameplay room creation, board polling, moves, and reset still use the separate legacy game server configured as `BASEGAME_API`; the `/api` service is the persistence/history service.
 

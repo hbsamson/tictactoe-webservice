@@ -4,7 +4,6 @@ import com.svi.tictactoe.dao.GameDAO;
 import com.svi.tictactoe.dao.impl.GameDAOImpl;
 import com.svi.tictactoe.dto.GameRecordDTO;
 import com.svi.tictactoe.dto.RoomDTO;
-import com.svi.tictactoe.dto.RoomKeyDTO;
 import com.svi.tictactoe.dto.response.ServiceResponseDTO;
 import com.svi.tictactoe.dto.response.GameListResponseDTO;
 import com.svi.tictactoe.dto.response.GameRecordListResponseDTO;
@@ -136,21 +135,21 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public ServiceResponseDTO<SaveResponseDTO> saveRoomKey(RoomKeyDTO roomKeyRecord) {
-        if (roomKeyRecord == null
-                || roomKeyRecord.getRoomKey() == null
-                || roomKeyRecord.getRoomKey().trim().isEmpty()
-                || !Validators.isValidRoomCode(roomKeyRecord.getRoomKey())
-                || roomKeyRecord.getGameIds() == null
-                || roomKeyRecord.getGameIds().isEmpty()) {
+    public ServiceResponseDTO<SaveResponseDTO> saveRoom(RoomDTO roomRecord) {
+        if (roomRecord == null
+                || roomRecord.getRoomId() == null
+                || roomRecord.getRoomId().trim().isEmpty()
+                || !Validators.isValidRoomCode(roomRecord.getRoomId())
+                || roomRecord.getGameIds() == null
+                || roomRecord.getGameIds().isEmpty()) {
             return new ServiceResponseDTO<>(
-                    new SaveResponseDTO("Invalid roomKey format."),
+                    new SaveResponseDTO("Invalid roomId format."),
                     400
             );
         }
 
-        if (roomKeyRecord.getGameIds() != null) {
-            for (String gameId : roomKeyRecord.getGameIds()) {
+        if (roomRecord.getGameIds() != null) {
+            for (String gameId : roomRecord.getGameIds()) {
                 if (gameId == null || gameId.trim().isEmpty() || !Validators.isValidUUID(gameId)) {
                     return new ServiceResponseDTO<>(
                             new SaveResponseDTO("Invalid gameIds format."),
@@ -161,14 +160,12 @@ public class GameServiceImpl implements GameService {
         }
 
         try {
-            String roomCode = roomKeyRecord.getRoomKey().trim();
+            String roomId = roomRecord.getRoomId().trim();
             String createdDate = Instant.now().toString();
 
             synchronized (SAVE_MOVE_LOCK) {
-                // The frontend reads rooms through GET /room/{roomCode}, which
-                // is backed by the roomid directory.
-                for (String gameId : new LinkedHashSet<>(roomKeyRecord.getGameIds())) {
-                    gameDAO.addGameToRoom(roomCode, gameId.trim(), createdDate);
+                for (String gameId : new LinkedHashSet<>(roomRecord.getGameIds())) {
+                    gameDAO.addGameToRoom(roomId, gameId.trim(), createdDate);
                 }
             }
             return new ServiceResponseDTO<>(

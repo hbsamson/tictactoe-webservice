@@ -1,7 +1,6 @@
 package com.svi.tictactoe.resource;
 
 import com.svi.tictactoe.dto.GameRecordDTO;
-import com.svi.tictactoe.dto.RoomKeyDTO;
 import com.svi.tictactoe.dto.response.GameRecordListResponseDTO;
 import com.svi.tictactoe.dto.response.SaveResponseDTO;
 import com.svi.tictactoe.dto.response.ServiceResponseDTO;
@@ -29,21 +28,6 @@ public class GameResource {
 
         ServiceResponseDTO<SaveResponseDTO> serviceResponse =
                 gameService.saveMove(record);
-
-        return Response
-                .status(serviceResponse.getStatus())
-                .entity(serviceResponse.getData())
-                .build();
-    }
-
-    @POST
-    @Path("/room-key/save")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response saveRoomKey(RoomKeyDTO roomKeyRecord) {
-
-        ServiceResponseDTO<SaveResponseDTO> serviceResponse =
-                gameService.saveRoomKey(roomKeyRecord);
 
         return Response
                 .status(serviceResponse.getStatus())

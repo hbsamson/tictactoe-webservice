@@ -1,7 +1,7 @@
 package com.svi.tictactoe.resource;
 
 import com.svi.tictactoe.dto.RoomDTO;
-import com.svi.tictactoe.dto.RoomKeyDTO;
+import com.svi.tictactoe.dto.RoomDTO;
 import com.svi.tictactoe.dto.response.SaveResponseDTO;
 import com.svi.tictactoe.dto.response.ServiceResponseDTO;
 import com.svi.tictactoe.services.GameService;
@@ -26,25 +26,25 @@ public class RoomResource {
     @Path("/save")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response saveGame(RoomKeyDTO roomKeyRecord) {
-        ServiceResponseDTO<SaveResponseDTO> serviceResponse = gameService.saveRoomKey(roomKeyRecord);
+    public Response saveGame(RoomDTO roomRecord) {
+        ServiceResponseDTO<SaveResponseDTO> serviceResponse = gameService.saveRoom(roomRecord);
         return Response.status(serviceResponse.getStatus())
                 .entity(serviceResponse.getData())
                 .build();
     }
 
     @GET
-    @Path("/{roomCode}")
+    @Path("/{roomId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getRoomGames(@PathParam("roomCode") String roomCode) {
-        if (!Validators.isValidRoomCode(roomCode)) {
+    public Response getRoomGames(@PathParam("roomId") String roomId) {
+        if (!Validators.isValidRoomCode(roomId)) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(new SaveResponseDTO("Invalid room code."))
                     .build();
         }
 
         try {
-            return Response.ok(gameService.getRoomGames(roomCode)).build();
+            return Response.ok(gameService.getRoomGames(roomId)).build();
         } catch (IOException e) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(new SaveResponseDTO("Room record not found."))
