@@ -49,10 +49,11 @@ POST /api/game/save
 
 Responses:
 
-- `200`: `{ "msg": "Record saved." }`
-- `400`: `{ "msg": "Invalid game record." }`
+- `200`: `{ "msg": "Record saved" }`
+- `401`: `{ "msg": "Invalid gameId format" }` or `{ "msg": "Invalid playerId format" }` for invalid UUIDs.
+- `400`: `{ "msg": "Invalid symbol" }` for an invalid symbol; otherwise `{ "msg": "Record could not be saved" }`
 - `409`: `{ "msg": "Location is already occupied." }`
-- `500`: `{ "msg": "The server ran into an unexpected exception." }`
+- `500`: `{ "msg": "The server ran into an unexpected exception" }`
 
 On success, the move is appended to the game file and the game ID is added to the player's history without duplication.
 
@@ -76,8 +77,8 @@ There is no request body. `playerId` must be a canonical UUID.
 `id` is the game ID. `playerName` is taken from the first named move and may be `null`.
 
 - `400`: invalid player ID (`Invalid playerId format.`)
-- `404`: player has no recorded history (`Player record not found`)
-- `500`: unexpected server exception
+- `404`: player has no recorded history (`Player ID not found`)
+- `500`: `{ "msg": "The server ran into an unexpected exception" }`
 
 The supplied specification says `402` for a missing player record; the implementation uses the correct `404 Not Found` status.
 
@@ -107,9 +108,9 @@ The path parameter is `gameId`, not `playerId` as shown in the supplied specific
 
 Records are returned in file/save order; the service does not sort by `dateSaved`. Thus clients should submit moves chronologically if they need chronological replay.
 
-- `400`: invalid game ID (`Invalid gameId format.`)
+- `400`: invalid game ID (`Invalid gameId format`)
 - `404`: game file not found (`Game record not found`)
-- `500`: unexpected server exception
+- `500`: `{ "msg": "The server ran into an unexpected exception" }`
 
 ### Save room/rematch games
 
@@ -130,9 +131,9 @@ POST /api/room/save
 
 The request is deserialized into `RoomDTO`. The service creates one `createdDate` timestamp for the save operation and persists `gameId,createdDate` for each supplied game. The same `RoomDTO` is used for room responses, where `gameId` and `createdDate` describe an individual stored entry.
 
-- `200`: `{ "msg": "Room games saved." }`
-- `400`: invalid room key or game IDs
-- `500`: unexpected server exception
+- `200`: `{ "msg": "Room games saved" }`
+- `400`: `{ "msg": "Invalid roomId format" }` for an invalid room record, or `{ "msg": "Invalid gameIds format" }` for an invalid game ID.
+- `500`: `{ "msg": "The server ran into an unexpected exception" }`
 
 ### Get games in a room
 

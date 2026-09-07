@@ -32,10 +32,31 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public ServiceResponseDTO<SaveResponseDTO> saveMove(GameRecordDTO record) {
+        if (record != null && !Validators.isValidUUID(record.getGameId())) {
+            return new ServiceResponseDTO<>(
+                    new SaveResponseDTO("Invalid gameId format"),
+                    401
+            );
+        }
+
+        if (record != null && !Validators.isValidUUID(record.getPlayerId())) {
+            return new ServiceResponseDTO<>(
+                    new SaveResponseDTO("Invalid playerId format"),
+                    401
+            );
+        }
+
+        if (record != null && !Validators.isValidSymbol(record.getSymbol())) {
+            return new ServiceResponseDTO<>(
+                    new SaveResponseDTO("Invalid symbol"),
+                    401
+            );
+        }
+
         if (!Validators.isValidRecord(record)) {
             return new ServiceResponseDTO<>(
-                    new SaveResponseDTO("Invalid game record."),
-                    400
+                    new SaveResponseDTO("Record could not be saved"),
+                    401
             );
         }
 
@@ -55,13 +76,13 @@ public class GameServiceImpl implements GameService {
                 gameDAO.addGameToPlayer(record.getPlayerId(), record.getGameId());
             }
             return new ServiceResponseDTO<>(
-                    new SaveResponseDTO("Record saved."),
+                    new SaveResponseDTO("Record saved"),
                     200
             );
 
         } catch (IOException e) {
             return new ServiceResponseDTO<>(
-                    new SaveResponseDTO("The server ran into an unexpected exception."),
+                    new SaveResponseDTO("The server ran into an unexpected exception"),
                     500
             );
         }
@@ -71,7 +92,7 @@ public class GameServiceImpl implements GameService {
     public ServiceResponseDTO<GameRecordListResponseDTO> getGameDetails(String gameId) {
         if (gameId == null || gameId.trim().isEmpty() || !Validators.isValidUUID(gameId)) {
             return new ServiceResponseDTO<>(
-                    new GameRecordListResponseDTO(null, "Invalid gameId format."),
+                    new GameRecordListResponseDTO(null, "Invalid gameId format"),
                     400
             );
         }
@@ -84,7 +105,7 @@ public class GameServiceImpl implements GameService {
             );
 
         } catch (IOException e) {
-            if (e.getMessage() != null && e.getMessage().contains("Game not found")) {
+            if (e.getMessage() != null && e.getMessage().contains("Game ID not found")) {
                 return new ServiceResponseDTO<>(
                         new GameRecordListResponseDTO(null, "Game record not found"),
                         404
@@ -92,7 +113,7 @@ public class GameServiceImpl implements GameService {
             }
 
             return new ServiceResponseDTO<>(
-                    new GameRecordListResponseDTO(null, "The server ran into an unexpected exception."),
+                    new GameRecordListResponseDTO(null, "The server ran into an unexpected exception"),
                     500
             );
         }
@@ -102,7 +123,7 @@ public class GameServiceImpl implements GameService {
     public ServiceResponseDTO<GameListResponseDTO> getPlayerGames(String playerId) {
         if (playerId == null || playerId.trim().isEmpty() || !Validators.isValidUUID(playerId)) {
             return new ServiceResponseDTO<>(
-                    new GameListResponseDTO(null, "Invalid playerId format."),
+                    new GameListResponseDTO(null, "Invalid playerId format"),
                     400
             );
         }
@@ -110,7 +131,7 @@ public class GameServiceImpl implements GameService {
         try {
             if (!gameDAO.playerExists(playerId)) {
                 return new ServiceResponseDTO<>(
-                        new GameListResponseDTO(null, "Player record not found"),
+                        new GameListResponseDTO(null, "Player ID not found"),
                         404
                 );
             }
@@ -128,7 +149,7 @@ public class GameServiceImpl implements GameService {
 
         } catch (IOException e) {
             return new ServiceResponseDTO<>(
-                    new GameListResponseDTO(null, "The server ran into an unexpected exception."),
+                    new GameListResponseDTO(null, "The server ran into an unexpected exception"),
                     500
             );
         }
@@ -143,7 +164,7 @@ public class GameServiceImpl implements GameService {
                 || roomRecord.getGameIds() == null
                 || roomRecord.getGameIds().isEmpty()) {
             return new ServiceResponseDTO<>(
-                    new SaveResponseDTO("Invalid roomId format."),
+                    new SaveResponseDTO("Invalid roomId format"),
                     400
             );
         }
@@ -152,7 +173,7 @@ public class GameServiceImpl implements GameService {
             for (String gameId : roomRecord.getGameIds()) {
                 if (gameId == null || gameId.trim().isEmpty() || !Validators.isValidUUID(gameId)) {
                     return new ServiceResponseDTO<>(
-                            new SaveResponseDTO("Invalid gameIds format."),
+                            new SaveResponseDTO("Invalid gameIds format"),
                             400
                     );
                 }
@@ -169,12 +190,12 @@ public class GameServiceImpl implements GameService {
                 }
             }
             return new ServiceResponseDTO<>(
-                    new SaveResponseDTO("Room games saved."),
+                    new SaveResponseDTO("Room games saved"),
                     200
             );
         } catch (IOException e) {
             return new ServiceResponseDTO<>(
-                    new SaveResponseDTO("The server ran into an unexpected exception."),
+                    new SaveResponseDTO("The server ran into an unexpected exception"),
                     500
             );
         }

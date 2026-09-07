@@ -48,7 +48,7 @@ public final class Validators {
         return value != null && ROOM_CODE_PATTERN.matcher(value).matches();
     }
 
-    private static boolean isValidSymbol(String value) {
+    public static boolean isValidSymbol(String value) {
         return "X".equals(value) || "O".equals(value);
     }
 
