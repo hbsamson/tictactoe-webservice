@@ -22,6 +22,18 @@ import java.io.IOException;
 public class RoomResource {
     private final GameService gameService = new GameServiceImpl();
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getRoomIds() {
+        try {
+            return Response.ok(gameService.getRoomIds()).build();
+        } catch (IOException e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(new SaveResponseDTO("The server ran into an unexpected exception."))
+                    .build();
+        }
+    }
+
     @POST
     @Path("/save")
     @Produces(MediaType.APPLICATION_JSON)

@@ -193,4 +193,9 @@ public class GameServiceImpl implements GameService {
         
         return gameDAO.readRoomGames(roomCode);
     }
+
+    @Override
+    public List<String> getRoomIds() throws IOException {
+        return gameDAO.readRoomIds();
+    }
 }

@@ -56,6 +56,11 @@ public class GameDAOImpl implements GameDAO {
     }
 
     @Override
+    public List<String> readRoomIds() throws IOException {
+        return fileStorageService.readRoomIds();
+    }
+
+    @Override
     public boolean playerExists(String playerId) throws IOException {
         return fileStorageService.playerExists(playerId);
     }

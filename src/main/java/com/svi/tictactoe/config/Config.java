@@ -21,7 +21,6 @@ public final class Config {
         DEFAULTS.setProperty(Keys.PLAYER_DIR.value(), "playerid");
         DEFAULTS.setProperty(Keys.GAME_DIR.value(), "gameid");
         DEFAULTS.setProperty(Keys.ROOM_DIR.value(), "roomid");
-        DEFAULTS.setProperty(Keys.ROOM_KEY_DIR.value(), "roomkey");
         DEFAULTS.setProperty(Keys.FRONTEND_URLS.value(), "http://localhost:5500,http://127.0.0.1:5500");
 
         try (

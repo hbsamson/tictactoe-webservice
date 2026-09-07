@@ -400,6 +400,23 @@ public class FileStorageServiceImpl implements FileStorageService {
         return roomGames;
     }
 
+    /** Returns the room keys that have at least one recorded game. */
+    @Override
+    public List<String> readRoomIds() throws IOException {
+        Path roomIdDir = getRoomIdDirectory();
+        List<String> roomIds = new ArrayList<>();
+        try (java.nio.file.DirectoryStream<Path> files = Files.newDirectoryStream(roomIdDir, "*.txt")) {
+            for (Path file : files) {
+                if (Files.isRegularFile(file) && Files.size(file) > 0) {
+                    String name = file.getFileName().toString();
+                    roomIds.add(name.substring(0, name.length() - 4));
+                }
+            }
+        }
+        java.util.Collections.sort(roomIds);
+        return roomIds;
+    }
+
     /**
      * Check if a room has any recorded games.
      * 

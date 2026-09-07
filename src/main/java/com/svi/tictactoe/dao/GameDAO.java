@@ -14,6 +14,7 @@ public interface GameDAO {
     List<String> readPlayerGames(String playerId) throws IOException;
     String readPlayerName(String gameId) throws IOException;
     List<RoomDTO> readRoomGames(String roomCode) throws IOException;
+    List<String> readRoomIds() throws IOException;
     boolean playerExists(String playerId) throws IOException;
     boolean gameExists(String gameId) throws IOException;
     boolean roomExists(String roomCode) throws IOException;

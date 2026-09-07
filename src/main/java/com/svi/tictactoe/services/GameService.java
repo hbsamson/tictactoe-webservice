@@ -18,4 +18,5 @@ public interface GameService {
     void saveGameToRoom(String roomCode, String gameId, String createdDate) throws IOException;
 
     List<RoomDTO> getRoomGames(String roomCode) throws IOException;
+    List<String> getRoomIds() throws IOException;
 }
