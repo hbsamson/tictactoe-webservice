@@ -61,10 +61,15 @@ public final class Validators {
     }
 
     private static boolean isSafeOptionalText(String value) {
-        return value == null || (value.length() <= 100 && !containsRecordDelimiter(value));
+        // playerName is CSV-escaped by GameRecordDTO, so commas are allowed.
+        return value == null || (value.length() <= 100 && !containsLineBreak(value));
     }
 
     private static boolean containsRecordDelimiter(String value) {
         return value.indexOf(',') >= 0 || value.indexOf('\n') >= 0 || value.indexOf('\r') >= 0;
+    }
+
+    private static boolean containsLineBreak(String value) {
+        return value.indexOf('\n') >= 0 || value.indexOf('\r') >= 0;
     }
 }
