@@ -54,7 +54,19 @@ public final class Config {
     }
 
     public static Path getPath(String key) {
-        return Paths.get(get(key));
+        Path configuredPath = Paths.get(get(key));
+        if (configuredPath.isAbsolute()) {
+            return configuredPath;
+        }
+
+        // Payara exposes the active domain instance directory as a system property.
+        // Keep local development relative to the project when that property is absent.
+        String instanceRoot = System.getProperty("com.sun.aas.instanceRoot");
+        if (instanceRoot != null && !instanceRoot.trim().isEmpty()) {
+            return Paths.get(instanceRoot).resolve("config").resolve(configuredPath);
+        }
+
+        return configuredPath;
     }
 
     public enum Keys {

@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
 
@@ -23,7 +22,6 @@ import java.util.*;
  * - /records/roomkey/<roomKey>.txt: newline-delimited list of gameIds for a rematch group
  */
 public class FileStorageServiceImpl implements FileStorageService {
-    private static final String RECORDS_DIR = Config.get(Config.Keys.RECORDS_DIR.value());
     private static final String PLAYERID_SUBDIR = Config.get(Config.Keys.PLAYER_DIR.value());
     private static final String GAMEID_SUBDIR = Config.get(Config.Keys.GAME_DIR.value());
     private static final String ROOMID_SUBDIR = Config.get(Config.Keys.ROOM_DIR.value());
@@ -35,7 +33,7 @@ public class FileStorageServiceImpl implements FileStorageService {
      */
     @Override
     public Path getRecordsDirectory() throws IOException {
-        Path recordsPath = Paths.get(RECORDS_DIR).toAbsolutePath();
+        Path recordsPath = Config.getPath(Config.Keys.RECORDS_DIR.value()).toAbsolutePath();
         Files.createDirectories(recordsPath);
         return recordsPath;
     }

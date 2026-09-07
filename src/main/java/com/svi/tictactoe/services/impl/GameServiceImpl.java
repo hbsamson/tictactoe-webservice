@@ -13,7 +13,9 @@ import com.svi.tictactoe.services.GameService;
 import com.svi.tictactoe.utils.Validators;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -159,9 +161,18 @@ public class GameServiceImpl implements GameService {
         }
 
         try {
-            gameDAO.saveRoomKey(roomKeyRecord.getRoomKey().trim(), roomKeyRecord.getGameIds());
+            String roomCode = roomKeyRecord.getRoomKey().trim();
+            String createdDate = Instant.now().toString();
+
+            synchronized (SAVE_MOVE_LOCK) {
+                // The frontend reads rooms through GET /room/{roomCode}, which
+                // is backed by the roomid directory.
+                for (String gameId : new LinkedHashSet<>(roomKeyRecord.getGameIds())) {
+                    gameDAO.addGameToRoom(roomCode, gameId.trim(), createdDate);
+                }
+            }
             return new ServiceResponseDTO<>(
-                    new SaveResponseDTO("Room key saved."),
+                    new SaveResponseDTO("Room games saved."),
                     200
             );
         } catch (IOException e) {
