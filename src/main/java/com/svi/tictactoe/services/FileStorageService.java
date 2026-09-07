@@ -12,12 +12,14 @@ import com.svi.tictactoe.dto.RoomDTO;
  * - /records/playerid/<playerId>.txt: newline-delimited list of gameIds
  * - /records/gameid/<gameId>.txt: comma-delimited moves
  * - /records/roomid/<roomCode>.txt: newline-delimited list of gameIds with dates
+ * - /records/roomkey/<roomKey>.txt: newline-delimited list of gameIds for a rematch group
  **/
 public interface FileStorageService {
     Path getRecordsDirectory() throws IOException;
     Path getPlayerIdDirectory() throws IOException;
     Path getGameIdDirectory() throws IOException;
     Path getRoomIdDirectory() throws IOException;
+    Path getRoomKeyDirectory() throws IOException;
 
     void appendMoveToGame(GameRecordDTO gameRecord) throws IOException;
     void appendGameToPlayer(String playerId, String gameId) throws IOException;
@@ -28,6 +30,7 @@ public interface FileStorageService {
     boolean playerExists(String playerId) throws IOException;
     boolean gameExists(String gameId) throws IOException;
     void appendGameToRoom(String roomCode, String gameId, String createdDate) throws IOException;
+    void appendGameIdsToRoomKey(String roomKey, List<String> gameIds) throws IOException;
     List<RoomDTO> readRoomGames(String roomCode) throws IOException;
     boolean roomExists(String roomCode) throws IOException;
 }

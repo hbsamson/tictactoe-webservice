@@ -27,6 +27,11 @@ public class GameDAOImpl implements GameDAO {
     }
 
     @Override
+    public void saveRoomKey(String roomKey, List<String> gameIds) throws IOException {
+        fileStorageService.appendGameIdsToRoomKey(roomKey, gameIds);
+    }
+
+    @Override
     public List<GameRecordDTO> readMoves(String gameId) throws IOException {
         return fileStorageService.readGameMoves(gameId);
     }

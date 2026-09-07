@@ -20,12 +20,14 @@ import java.util.*;
  * - /records/playerid/<playerId>.txt: newline-delimited list of gameIds
  * - /records/gameid/<gameId>.txt: comma-delimited moves (CSV format)
  * - /records/roomid/<roomCode>.txt: newline-delimited list of gameIds with dates
+ * - /records/roomkey/<roomKey>.txt: newline-delimited list of gameIds for a rematch group
  */
 public class FileStorageServiceImpl implements FileStorageService {
     private static final String RECORDS_DIR = Config.get(Config.Keys.RECORDS_DIR.value());
     private static final String PLAYERID_SUBDIR = Config.get(Config.Keys.PLAYER_DIR.value());
     private static final String GAMEID_SUBDIR = Config.get(Config.Keys.GAME_DIR.value());
     private static final String ROOMID_SUBDIR = Config.get(Config.Keys.ROOM_DIR.value());
+    private static final String ROOMKEY_SUBDIR = Config.get(Config.Keys.ROOM_KEY_DIR.value());
 
     /**
      * Get or create the /records directory at project root.
@@ -69,6 +71,17 @@ public class FileStorageServiceImpl implements FileStorageService {
         Path roomIdPath = getRecordsDirectory().resolve(ROOMID_SUBDIR);
         Files.createDirectories(roomIdPath);
         return roomIdPath;
+    }
+
+    /**
+     * Get or create the /records/roomkey directory.
+     * Returns the directory path.
+     */
+    @Override
+    public Path getRoomKeyDirectory() throws IOException {
+        Path roomKeyPath = getRecordsDirectory().resolve(ROOMKEY_SUBDIR);
+        Files.createDirectories(roomKeyPath);
+        return roomKeyPath;
     }
 
     /**
@@ -315,6 +328,43 @@ public class FileStorageServiceImpl implements FileStorageService {
             Files.write(roomFile, (roomEntry + "\n").getBytes(StandardCharsets.UTF_8),
                     StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         }
+    }
+
+    /**
+     * Add a room key and its associated game IDs to a room-key file.
+     * Creates the file if it doesn't exist.
+     * Preserves insertion order and deduplicates game IDs.
+     *
+     * @param roomKey The base room key
+     * @param gameIds The game IDs in the rematch group
+     * @throws IOException if file I/O fails
+     */
+    @Override
+    public void appendGameIdsToRoomKey(String roomKey, List<String> gameIds) throws IOException {
+        Path roomKeyDir = getRoomKeyDirectory();
+        Path roomFile = roomKeyDir.resolve(roomKey + ".txt");
+
+        LinkedHashSet<String> orderedGameIds = new LinkedHashSet<>();
+
+        if (Files.exists(roomFile)) {
+            List<String> existingLines = Files.readAllLines(roomFile, StandardCharsets.UTF_8);
+            for (String line : existingLines) {
+                if (line != null && !line.trim().isEmpty()) {
+                    orderedGameIds.add(line.trim());
+                }
+            }
+        }
+
+        if (gameIds != null) {
+            for (String gameId : gameIds) {
+                if (gameId != null && !gameId.trim().isEmpty()) {
+                    orderedGameIds.add(gameId.trim());
+                }
+            }
+        }
+
+        Files.write(roomFile, new ArrayList<>(orderedGameIds), StandardCharsets.UTF_8,
+                StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 
     /**

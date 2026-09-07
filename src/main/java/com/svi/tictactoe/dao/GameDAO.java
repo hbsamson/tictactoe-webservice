@@ -9,6 +9,7 @@ public interface GameDAO {
     void saveMove(GameRecordDTO record) throws IOException;
     void addGameToPlayer(String playerId, String gameId) throws IOException;
     void addGameToRoom(String roomCode, String gameId, String createdDate) throws IOException;
+    void saveRoomKey(String roomKey, List<String> gameIds) throws IOException;
     List<GameRecordDTO> readMoves(String gameId) throws IOException;
     List<String> readPlayerGames(String playerId) throws IOException;
     String readPlayerName(String gameId) throws IOException;

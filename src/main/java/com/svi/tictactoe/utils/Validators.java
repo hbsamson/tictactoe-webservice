@@ -10,6 +10,7 @@ public final class Validators {
             "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     );
     private static final Pattern BOARD_LOCATION_PATTERN = Pattern.compile("^[0-8]$");
+    private static final Pattern ROOM_CODE_PATTERN = Pattern.compile("^[A-Za-z0-9]{4,6}$");
 
     private Validators() {
     }
@@ -41,6 +42,10 @@ public final class Validators {
         } catch (IllegalArgumentException | NullPointerException e) {
             return false;
         }
+    }
+
+    public static boolean isValidRoomCode(String value) {
+        return value != null && ROOM_CODE_PATTERN.matcher(value).matches();
     }
 
     private static boolean isValidSymbol(String value) {

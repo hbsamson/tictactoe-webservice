@@ -4,6 +4,7 @@ import com.svi.tictactoe.dao.GameDAO;
 import com.svi.tictactoe.dao.impl.GameDAOImpl;
 import com.svi.tictactoe.dto.GameRecordDTO;
 import com.svi.tictactoe.dto.RoomDTO;
+import com.svi.tictactoe.dto.RoomKeyDTO;
 import com.svi.tictactoe.dto.response.ServiceResponseDTO;
 import com.svi.tictactoe.dto.response.GameListResponseDTO;
 import com.svi.tictactoe.dto.response.GameRecordListResponseDTO;
@@ -127,6 +128,45 @@ public class GameServiceImpl implements GameService {
         } catch (IOException e) {
             return new ServiceResponseDTO<>(
                     new GameListResponseDTO(null, "The server ran into an unexpected exception."),
+                    500
+            );
+        }
+    }
+
+    @Override
+    public ServiceResponseDTO<SaveResponseDTO> saveRoomKey(RoomKeyDTO roomKeyRecord) {
+        if (roomKeyRecord == null
+                || roomKeyRecord.getRoomKey() == null
+                || roomKeyRecord.getRoomKey().trim().isEmpty()
+                || !Validators.isValidRoomCode(roomKeyRecord.getRoomKey())
+                || roomKeyRecord.getGameIds() == null
+                || roomKeyRecord.getGameIds().isEmpty()) {
+            return new ServiceResponseDTO<>(
+                    new SaveResponseDTO("Invalid roomKey format."),
+                    400
+            );
+        }
+
+        if (roomKeyRecord.getGameIds() != null) {
+            for (String gameId : roomKeyRecord.getGameIds()) {
+                if (gameId == null || gameId.trim().isEmpty() || !Validators.isValidUUID(gameId)) {
+                    return new ServiceResponseDTO<>(
+                            new SaveResponseDTO("Invalid gameIds format."),
+                            400
+                    );
+                }
+            }
+        }
+
+        try {
+            gameDAO.saveRoomKey(roomKeyRecord.getRoomKey().trim(), roomKeyRecord.getGameIds());
+            return new ServiceResponseDTO<>(
+                    new SaveResponseDTO("Room key saved."),
+                    200
+            );
+        } catch (IOException e) {
+            return new ServiceResponseDTO<>(
+                    new SaveResponseDTO("The server ran into an unexpected exception."),
                     500
             );
         }

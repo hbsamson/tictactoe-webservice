@@ -1,6 +1,7 @@
 package com.svi.tictactoe.services;
 
 import com.svi.tictactoe.dto.GameRecordDTO;
+import com.svi.tictactoe.dto.RoomKeyDTO;
 import com.svi.tictactoe.dto.response.GameListResponseDTO;
 import com.svi.tictactoe.dto.response.GameRecordListResponseDTO;
 import com.svi.tictactoe.dto.response.SaveResponseDTO;
@@ -13,6 +14,7 @@ public interface GameService {
     ServiceResponseDTO<SaveResponseDTO> saveMove(GameRecordDTO record);
     ServiceResponseDTO<GameRecordListResponseDTO> getGameDetails(String gameId);
     ServiceResponseDTO<GameListResponseDTO> getPlayerGames(String playerId);
+    ServiceResponseDTO<SaveResponseDTO> saveRoomKey(RoomKeyDTO roomKeyRecord);
     
     void saveGameToRoom(String roomCode, String gameId, String createdDate) throws IOException;
 
