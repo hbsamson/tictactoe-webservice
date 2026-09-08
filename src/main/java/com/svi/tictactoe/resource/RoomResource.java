@@ -20,7 +20,11 @@ import java.io.IOException;
 
 @Path("/room")
 public class RoomResource {
-    private final GameService gameService = new GameServiceImpl();
+    private final GameService gameService;
+
+    public RoomResource() {
+        this.gameService = new GameServiceImpl();
+    }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)

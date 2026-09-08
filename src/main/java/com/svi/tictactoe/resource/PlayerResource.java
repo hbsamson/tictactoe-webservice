@@ -16,8 +16,11 @@ import java.io.IOException;
 
 @Path("/player")
 public class PlayerResource {
+    private final GameService gameService;
 
-    private GameService gameService = new GameServiceImpl();
+    public PlayerResource() {
+        this.gameService = new GameServiceImpl();
+    }
 
     @GET
     @Path("/{playerId}/games")

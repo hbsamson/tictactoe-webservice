@@ -7,7 +7,7 @@ import javax.ws.rs.core.MediaType;
 
 @Path("health")
 public class HealthResource {
-    
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String check() {

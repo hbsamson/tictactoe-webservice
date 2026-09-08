@@ -7,6 +7,7 @@ import com.svi.tictactoe.dto.response.ServiceResponseDTO;
 import com.svi.tictactoe.services.GameService;
 import com.svi.tictactoe.services.impl.GameServiceImpl;
 
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -18,7 +19,11 @@ import javax.ws.rs.core.Response;
 
 @Path("/game")
 public class GameResource {
-    private GameService gameService = new GameServiceImpl();
+    private final GameService gameService;
+
+    public GameResource() {
+        this.gameService = new GameServiceImpl();
+    }
 
     @POST
     @Path("/save")
