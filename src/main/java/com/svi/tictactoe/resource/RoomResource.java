@@ -8,6 +8,7 @@ import com.svi.tictactoe.services.GameService;
 import com.svi.tictactoe.services.impl.GameServiceImpl;
 import com.svi.tictactoe.utils.Validators;
 
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -42,7 +43,7 @@ public class RoomResource {
     @Path("/save")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response saveGame(RoomDTO roomRecord) {
+    public Response saveGame(@Valid RoomDTO roomRecord) {
         ServiceResponseDTO<SaveResponseDTO> serviceResponse = gameService.saveRoom(roomRecord);
         return Response.status(serviceResponse.getStatus())
                 .entity(serviceResponse.getData())

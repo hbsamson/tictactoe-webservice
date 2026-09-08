@@ -8,6 +8,7 @@ import com.svi.tictactoe.services.GameService;
 import com.svi.tictactoe.services.impl.GameServiceImpl;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -29,7 +30,7 @@ public class GameResource {
     @Path("/save")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response saveMove(GameRecordDTO record) {
+    public Response saveMove(@Valid @NotNull GameRecordDTO record) {
 
         ServiceResponseDTO<SaveResponseDTO> serviceResponse =
                 gameService.saveMove(record);

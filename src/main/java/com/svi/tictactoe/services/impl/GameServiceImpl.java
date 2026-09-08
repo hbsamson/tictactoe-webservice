@@ -32,28 +32,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public ServiceResponseDTO<SaveResponseDTO> saveMove(GameRecordDTO record) {
-        if (record != null && !Validators.isValidUUID(record.getGameId())) {
-            return new ServiceResponseDTO<>(
-                    new SaveResponseDTO("Invalid gameId format"),
-                    401
-            );
-        }
-
-        if (record != null && !Validators.isValidUUID(record.getPlayerId())) {
-            return new ServiceResponseDTO<>(
-                    new SaveResponseDTO("Invalid playerId format"),
-                    401
-            );
-        }
-
-        if (record != null && !Validators.isValidSymbol(record.getSymbol())) {
-            return new ServiceResponseDTO<>(
-                    new SaveResponseDTO("Invalid symbol"),
-                    401
-            );
-        }
-
-        if (!Validators.isValidRecord(record)) {
+        if (record == null) {
             return new ServiceResponseDTO<>(
                     new SaveResponseDTO("Record could not be saved"),
                     401
@@ -169,14 +148,12 @@ public class GameServiceImpl implements GameService {
             );
         }
 
-        if (roomRecord.getGameIds() != null) {
-            for (String gameId : roomRecord.getGameIds()) {
-                if (gameId == null || gameId.trim().isEmpty() || !Validators.isValidUUID(gameId)) {
-                    return new ServiceResponseDTO<>(
-                            new SaveResponseDTO("Invalid gameIds format"),
-                            400
-                    );
-                }
+        for (String gameId : roomRecord.getGameIds()) {
+            if (gameId == null || gameId.trim().isEmpty() || !Validators.isValidUUID(gameId)) {
+                return new ServiceResponseDTO<>(
+                        new SaveResponseDTO("Invalid gameIds format"),
+                        400
+                );
             }
         }
 

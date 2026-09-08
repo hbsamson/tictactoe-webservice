@@ -1,5 +1,9 @@
 package com.svi.tictactoe.dto;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+
 public class GameRecordDTO {
     private String gameId;
     private String playerId;
@@ -26,11 +30,23 @@ public class GameRecordDTO {
         this.dateSaved = dateSaved;
     }
 
+    @NotBlank
+    @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
     public String getGameId() { return gameId; }
+    @NotBlank
+    @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
     public String getPlayerId() { return playerId; }
+    @Size(max = 10)
+    @Pattern(regexp = "^[^\\r\\n]*$")
     public String getPlayerName() { return playerName; }
+    @NotBlank
+    @Pattern(regexp = "^[XO]$")
     public String getSymbol() { return symbol; }
+    @NotBlank
+    @Pattern(regexp = "^[0-8]$")
     public String getLocation() { return location; }
+    @NotBlank
+    @Pattern(regexp = "^[^,\\r\\n]+$")
     public String getDateSaved() { return dateSaved; }
 
     public void setGameId(String gameId) { this.gameId = gameId; }
