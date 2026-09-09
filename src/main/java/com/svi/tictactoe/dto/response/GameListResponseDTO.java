@@ -42,6 +42,8 @@ public class GameListResponseDTO {
     public static class GameItem {
         private String id;
         private String playerName;
+        private String playerAvatar;
+        private String gameDate;
 
         public GameItem() {}
         public GameItem(String id, String playerName) {
@@ -49,11 +51,22 @@ public class GameListResponseDTO {
             this.playerName = playerName;
         }
 
+        public GameItem(String id, String playerName, String playerAvatar, String gameDate) {
+            this.id = id;
+            this.playerName = playerName;
+            this.playerAvatar = playerAvatar;
+            this.gameDate = gameDate;
+        }
+
         public String getId() { return id; }
         public String getPlayerName() { return playerName; }
+        public String getPlayerAvatar() { return playerAvatar; }
+        public String getGameDate() { return gameDate; }
 
         public void setId(String id) { this.id = id; }
         public void setPlayerName(String playerName) { this.playerName = playerName; }
+        public void setPlayerAvatar(String playerAvatar) { this.playerAvatar = playerAvatar; }
+        public void setGameDate(String gameDate) { this.gameDate = gameDate; }
 
         @Override
         public String toString() {

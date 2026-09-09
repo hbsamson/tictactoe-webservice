@@ -4,6 +4,7 @@ import com.svi.tictactoe.dao.GameDAO;
 import com.svi.tictactoe.dao.impl.GameDAOImpl;
 import com.svi.tictactoe.dto.GameRecordDTO;
 import com.svi.tictactoe.dto.RoomDTO;
+import com.svi.tictactoe.dto.PlayerGameDTO;
 import com.svi.tictactoe.dto.response.ServiceResponseDTO;
 import com.svi.tictactoe.dto.response.GameListResponseDTO;
 import com.svi.tictactoe.dto.response.GameRecordListResponseDTO;
@@ -54,7 +55,7 @@ public class GameServiceImpl implements GameService {
                 }
 
                 gameDAO.saveMove(record);
-                gameDAO.addGameToPlayer(record.getPlayerId(), record.getGameId());
+                gameDAO.addGameToPlayer(record);
             }
             return new ServiceResponseDTO<>(
                     new SaveResponseDTO(ResponseMessage.RECORD_SAVED),
@@ -117,11 +118,12 @@ public class GameServiceImpl implements GameService {
                 );
             }
 
-            List<String> gameIds = gameDAO.readPlayerGames(playerId);
+            List<PlayerGameDTO> games = gameDAO.readPlayerGames(playerId);
             List<GameListResponseDTO.GameItem> gameItems = new ArrayList<>();
 
-            for (String gameId : gameIds) {
-                gameItems.add(new GameListResponseDTO.GameItem(gameId, gameDAO.readPlayerName(gameId)));
+            for (PlayerGameDTO game : games) {
+                gameItems.add(new GameListResponseDTO.GameItem(
+                        game.getGameId(), game.getPlayerName(), game.getPlayerAvatar(), game.getGameDate()));
             }
             return new ServiceResponseDTO<>(
                     new GameListResponseDTO(gameItems, ResponseMessage.PLAYER_GAMES_FOUND),

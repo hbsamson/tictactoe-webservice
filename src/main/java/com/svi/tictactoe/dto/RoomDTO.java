@@ -22,15 +22,13 @@ public class RoomDTO {
     @NotBlank
     @Pattern(regexp = "^[A-Za-z0-9]{4,6}$")
     public String getRoomId() { return roomId; }
+
     @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
     public String getGameId() { return gameId; }
+
     public String getCreatedDate() { return createdDate; }
+
     @NotEmpty
     public List<String> getGameIds() { return gameIds; }
-
-    public void setRoomId(String roomId) { this.roomId = roomId; }
-    public void setGameId(String gameId) { this.gameId = gameId; }
-    public void setCreatedDate(String createdDate) { this.createdDate = createdDate; }
-    public void setGameIds(List<String> gameIds) { this.gameIds = gameIds; }
 
 }

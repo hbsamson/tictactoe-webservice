@@ -6,6 +6,7 @@ import com.svi.tictactoe.dao.PlayerGameDAO;
 import com.svi.tictactoe.dao.RoomGameDAO;
 import com.svi.tictactoe.dto.GameRecordDTO;
 import com.svi.tictactoe.dto.RoomDTO;
+import com.svi.tictactoe.dto.PlayerGameDTO;
 import com.svi.tictactoe.connection.CassandraConnection;
 import com.datastax.driver.core.Session;
 import java.io.IOException;
@@ -40,8 +41,8 @@ public final class GameDAOImpl implements GameDAO {
     }
 
     @Override
-    public void addGameToPlayer(String playerId, String gameId) throws IOException {
-        playerGames.save(playerId, gameId);
+    public void addGameToPlayer(GameRecordDTO record) throws IOException {
+        playerGames.save(record);
     }
 
     @Override
@@ -55,7 +56,7 @@ public final class GameDAOImpl implements GameDAO {
     }
 
     @Override
-    public List<String> readPlayerGames(String playerId) throws IOException {
+    public List<PlayerGameDTO> readPlayerGames(String playerId) throws IOException {
         return playerGames.findByPlayerId(playerId);
     }
 

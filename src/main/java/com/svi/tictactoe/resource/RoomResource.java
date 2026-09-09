@@ -1,7 +1,6 @@
 package com.svi.tictactoe.resource;
 
 import com.svi.tictactoe.dto.RoomDTO;
-import com.svi.tictactoe.dto.RoomDTO;
 import com.svi.tictactoe.dto.response.SaveResponseDTO;
 import com.svi.tictactoe.dto.response.ServiceResponseDTO;
 import com.svi.tictactoe.constants.ResponseMessage;
