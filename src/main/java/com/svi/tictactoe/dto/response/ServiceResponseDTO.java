@@ -1,20 +1,22 @@
 package com.svi.tictactoe.dto.response;
 
+import javax.ws.rs.core.Response;
+
 public class ServiceResponseDTO<T> {
 
     private T data;
-    private int status;
+    private Response.Status status;
 
     public ServiceResponseDTO() {}
 
-    public ServiceResponseDTO(T data, int status) {
+    public ServiceResponseDTO(T data, Response.Status status) {
         this.data = data;
         this.status = status;
     }
 
     public T getData() { return data; }
-    public int getStatus() { return status; }
+    public Response.Status getStatus() { return status; }
 
     public void setData(T data) { this.data = data; }
-    public void setStatus(int status) { this.status = status; }
+    public void setStatus(Response.Status status) { this.status = status; }
 }

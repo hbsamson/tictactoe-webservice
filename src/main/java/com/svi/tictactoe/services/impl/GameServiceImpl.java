@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import javax.ws.rs.core.Response;
 
 public class GameServiceImpl implements GameService {
     private static final Object SAVE_MOVE_LOCK = new Object();
@@ -35,7 +36,7 @@ public class GameServiceImpl implements GameService {
         if (record == null) {
             return new ServiceResponseDTO<>(
                     new SaveResponseDTO("Record could not be saved"),
-                    401
+                    Response.Status.BAD_REQUEST
             );
         }
 
@@ -46,7 +47,7 @@ public class GameServiceImpl implements GameService {
                     if (existingMove != null && record.getLocation().equals(existingMove.getLocation())) {
                         return new ServiceResponseDTO<>(
                                 new SaveResponseDTO("Location is already occupied."),
-                                409
+                                Response.Status.CONFLICT
                         );
                     }
                 }
@@ -56,13 +57,13 @@ public class GameServiceImpl implements GameService {
             }
             return new ServiceResponseDTO<>(
                     new SaveResponseDTO("Record saved"),
-                    200
+                Response.Status.OK
             );
 
         } catch (IOException e) {
             return new ServiceResponseDTO<>(
                     new SaveResponseDTO("The server ran into an unexpected exception"),
-                    500
+                    Response.Status.INTERNAL_SERVER_ERROR
             );
         }
     }
@@ -72,7 +73,7 @@ public class GameServiceImpl implements GameService {
         if (gameId == null || gameId.trim().isEmpty() || !Validators.isValidUUID(gameId)) {
             return new ServiceResponseDTO<>(
                     new GameRecordListResponseDTO(null, "Invalid gameId format"),
-                    400
+                Response.Status.BAD_REQUEST
             );
         }
 
@@ -80,20 +81,20 @@ public class GameServiceImpl implements GameService {
             List<GameRecordDTO> gameRecords = gameDAO.readMoves(gameId);
             return new ServiceResponseDTO<>(
                     new GameRecordListResponseDTO(gameRecords, "Records found"),
-                    200
+                    Response.Status.OK
             );
 
         } catch (IOException e) {
             if (e.getMessage() != null && e.getMessage().contains("Game ID not found")) {
                 return new ServiceResponseDTO<>(
                         new GameRecordListResponseDTO(null, "Game record not found"),
-                        404
+                        Response.Status.NOT_FOUND
                 );
             }
 
             return new ServiceResponseDTO<>(
                     new GameRecordListResponseDTO(null, "The server ran into an unexpected exception"),
-                    500
+                    Response.Status.INTERNAL_SERVER_ERROR
             );
         }
     }
@@ -103,7 +104,7 @@ public class GameServiceImpl implements GameService {
         if (playerId == null || playerId.trim().isEmpty() || !Validators.isValidUUID(playerId)) {
             return new ServiceResponseDTO<>(
                     new GameListResponseDTO(null, "Invalid playerId format"),
-                    400
+                    Response.Status.BAD_REQUEST
             );
         }
 
@@ -111,7 +112,7 @@ public class GameServiceImpl implements GameService {
             if (!gameDAO.playerExists(playerId)) {
                 return new ServiceResponseDTO<>(
                         new GameListResponseDTO(null, "Player ID not found"),
-                        404
+                        Response.Status.NOT_FOUND
                 );
             }
 
@@ -123,13 +124,13 @@ public class GameServiceImpl implements GameService {
             }
             return new ServiceResponseDTO<>(
                     new GameListResponseDTO(gameItems, "Player games records found"),
-                    200
+                Response.Status.OK
             );
 
         } catch (IOException e) {
             return new ServiceResponseDTO<>(
                     new GameListResponseDTO(null, "The server ran into an unexpected exception"),
-                    500
+                    Response.Status.INTERNAL_SERVER_ERROR
             );
         }
     }
@@ -144,7 +145,7 @@ public class GameServiceImpl implements GameService {
                 || roomRecord.getGameIds().isEmpty()) {
             return new ServiceResponseDTO<>(
                     new SaveResponseDTO("Invalid roomId format"),
-                    400
+                Response.Status.BAD_REQUEST
             );
         }
 
@@ -152,7 +153,7 @@ public class GameServiceImpl implements GameService {
             if (gameId == null || gameId.trim().isEmpty() || !Validators.isValidUUID(gameId)) {
                 return new ServiceResponseDTO<>(
                         new SaveResponseDTO("Invalid gameIds format"),
-                        400
+                    Response.Status.BAD_REQUEST
                 );
             }
         }
@@ -168,12 +169,12 @@ public class GameServiceImpl implements GameService {
             }
             return new ServiceResponseDTO<>(
                     new SaveResponseDTO("Room games saved"),
-                    200
+                Response.Status.OK
             );
         } catch (IOException e) {
             return new ServiceResponseDTO<>(
                     new SaveResponseDTO("The server ran into an unexpected exception"),
-                    500
+                Response.Status.INTERNAL_SERVER_ERROR
             );
         }
     }
