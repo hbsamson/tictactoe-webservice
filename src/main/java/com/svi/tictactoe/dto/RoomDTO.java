@@ -1,9 +1,9 @@
 package com.svi.tictactoe.dto;
-
-import java.util.List;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
+
+import java.util.List;
 
 public class RoomDTO {
     private String roomId;
@@ -33,24 +33,4 @@ public class RoomDTO {
     public void setCreatedDate(String createdDate) { this.createdDate = createdDate; }
     public void setGameIds(List<String> gameIds) { this.gameIds = gameIds; }
 
-    public String toRecordFormat() {
-        return String.format("%s,%s", gameId, createdDate);
-    }
-
-    public static RoomDTO fromRecordFormat(String roomId, String csvLine) {
-        String[] parts = csvLine.split(",");
-        if (parts.length != 2) {
-            throw new IllegalArgumentException("Invalid Room record format");
-        }
-        return new RoomDTO(roomId, parts[0], parts[1]);
-    }
-
-    @Override
-    public String toString() {
-        return "RoomDTO{" +
-                "roomId='" + roomId + '\'' +
-                ", gameId='" + gameId + '\'' +
-                ", createdDate='" + createdDate + '\'' +
-                '}';
-    }
 }

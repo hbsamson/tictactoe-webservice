@@ -1,8 +1,8 @@
 package com.svi.tictactoe.dto;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+
 
 public class GameRecordDTO {
     private String gameId;
@@ -56,61 +56,4 @@ public class GameRecordDTO {
     public void setLocation(String location) { this.location = location; }
     public void setDateSaved(String dateSaved) { this.dateSaved = dateSaved; }
 
-    public static GameRecordDTO fromRecordFormat(String csvLine) {
-        String[] parts = parseCsvLine(csvLine);
-        if (parts.length == 5) {
-            // Old format without playerName
-            return new GameRecordDTO(parts[0], parts[1], parts[2], parts[3], parts[4]);
-        } else if (parts.length == 6) {
-            // New format with playerName
-            return new GameRecordDTO(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5]);
-        } else {
-            throw new IllegalArgumentException("Invalid Record format");
-        }
-    }
-
-    public String toRecordFormat() {
-        if (playerName != null && !playerName.isEmpty()) {
-            return String.format("%s,%s,%s,%s,%s,%s", gameId, playerId,
-                    escapeCsvField(playerName), symbol, location, dateSaved);
-        }
-        return String.format("%s,%s,%s,%s,%s", gameId, playerId, symbol, location, dateSaved);
-    }
-
-    private static String escapeCsvField(String value) {
-        if (value.indexOf(',') >= 0 || value.indexOf('"') >= 0) {
-            return "\"" + value.replace("\"", "\"\"") + "\"";
-        }
-        return value;
-    }
-
-    private static String[] parseCsvLine(String line) {
-        java.util.List<String> fields = new java.util.ArrayList<>();
-        StringBuilder field = new StringBuilder();
-        boolean quoted = false;
-
-        for (int i = 0; i < line.length(); i++) {
-            char character = line.charAt(i);
-            if (character == '"') {
-                if (quoted && i + 1 < line.length() && line.charAt(i + 1) == '"') {
-                    field.append('"');
-                    i++;
-                } else {
-                    quoted = !quoted;
-                }
-            } else if (character == ',' && !quoted) {
-                fields.add(field.toString());
-                field.setLength(0);
-            } else {
-                field.append(character);
-            }
-        }
-
-        if (quoted) {
-            throw new IllegalArgumentException("Unclosed CSV field");
-        }
-        fields.add(field.toString());
-        return fields.toArray(new String[0]);
-    }
-    
 }

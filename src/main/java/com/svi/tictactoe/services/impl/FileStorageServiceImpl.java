@@ -4,6 +4,7 @@ import com.svi.tictactoe.config.Config;
 import com.svi.tictactoe.dto.GameRecordDTO;
 import com.svi.tictactoe.dto.RoomDTO;
 import com.svi.tictactoe.services.FileStorageService;
+import com.svi.tictactoe.utils.RecordFormatUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -95,7 +96,7 @@ public class FileStorageServiceImpl implements FileStorageService {
         String gameId = gameRecord.getGameId();
         Path gameFile = gameIdDir.resolve(gameId + ".txt");
         
-        String csvLine = gameRecord.toRecordFormat();
+        String csvLine = RecordFormatUtils.gameToCsv(gameRecord);
         
         // Append line to file (create if doesn't exist)
         Files.write(gameFile, (csvLine + "\n").getBytes(StandardCharsets.UTF_8),
@@ -182,7 +183,7 @@ public class FileStorageServiceImpl implements FileStorageService {
         for (String line : lines) {
             if (line != null && !line.trim().isEmpty()) {
                 try {
-                    GameRecordDTO record = GameRecordDTO.fromRecordFormat(line.trim());
+                    GameRecordDTO record = RecordFormatUtils.gameFromCsv(line.trim());
                     if (record.getPlayerName() != null && !record.getPlayerName().trim().isEmpty()) {
                         return record.getPlayerName().trim();
                     }
@@ -250,7 +251,7 @@ public class FileStorageServiceImpl implements FileStorageService {
         for (String line : lines) {
             if (line != null && !line.trim().isEmpty()) {
                 try {
-                    GameRecordDTO record = GameRecordDTO.fromRecordFormat(line.trim());
+                    GameRecordDTO record = RecordFormatUtils.gameFromCsv(line.trim());
                     moves.add(record);
                 } catch (IllegalArgumentException e) {
                     // Skip malformed lines
@@ -388,7 +389,7 @@ public class FileStorageServiceImpl implements FileStorageService {
         for (String line : lines) {
             if (line != null && !line.trim().isEmpty()) {
                 try {
-                    RoomDTO room = RoomDTO.fromRecordFormat(roomCode, line.trim());
+                    RoomDTO room = RecordFormatUtils.roomFromCsv(roomCode, line.trim());
                     roomGames.add(room);
                 } catch (IllegalArgumentException e) {
                     // Skip malformed lines
