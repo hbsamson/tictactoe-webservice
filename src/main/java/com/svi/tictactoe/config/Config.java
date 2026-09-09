@@ -22,6 +22,10 @@ public final class Config {
         DEFAULTS.setProperty(Keys.GAME_DIR.value(), "gameid");
         DEFAULTS.setProperty(Keys.ROOM_DIR.value(), "roomid");
         DEFAULTS.setProperty(Keys.FRONTEND_URLS.value(), "http://localhost:5500,http://127.0.0.1:5500");
+        DEFAULTS.setProperty(Keys.CASSANDRA_IP.value(), "localhost");
+        DEFAULTS.setProperty(Keys.CASSANDRA_PORT.value(), "9042");
+        DEFAULTS.setProperty(Keys.CASSANDRA_KEYSPACE.value(), "batch1_2026_trainees");
+        DEFAULTS.setProperty(Keys.CASSANDRA_TABLE.value(), "samson_moves_table");
 
         try (
             InputStream inputStream = Config.class.getClassLoader().getResourceAsStream(CONFIG_FILE)) {
@@ -74,7 +78,11 @@ public final class Config {
         GAME_DIR("GAME_DIR"),
         ROOM_DIR("ROOM_DIR"),
         ROOM_KEY_DIR("ROOM_KEY_DIR"),
-        FRONTEND_URLS("FRONTEND_URLS");
+        FRONTEND_URLS("FRONTEND_URLS"),
+        CASSANDRA_IP("CASSANDRA_IP"),
+        CASSANDRA_PORT("CASSANDRA_PORT"),
+        CASSANDRA_KEYSPACE("CASSANDRA_KEYSPACE"),
+        CASSANDRA_TABLE("CASSANDRA_TABLE");
 
         private final String value;
 

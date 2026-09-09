@@ -4,7 +4,18 @@ This Jakarta EE 8 REST service persists Tic Tac Toe moves, player history, rooms
 
 ## Running
 
-Requirements: Java 8+ (the Maven Wrapper is included).
+Requirements: Java 8+ (the Maven Wrapper is included), Docker, and Docker Compose.
+
+Start the local Cassandra database first. The one-shot `cassandra-init` service
+applies `database/schema.cql` after Cassandra is healthy:
+
+```bash
+docker compose up -d cassandra cassandra-init
+```
+
+The service connects to `localhost:9042` and the `batch1_2026_trainees` keyspace by default.
+Override `CASSANDRA_IP`, `CASSANDRA_PORT`, `CASSANDRA_KEYSPACE`, or
+`CASSANDRA_TABLE` with environment variables or Java system properties when needed.
 
 ```bash
 ./mvnw clean package payara-micro:start
@@ -183,7 +194,7 @@ gameId,playerId,playerName,symbol,location,dateSaved
 
 Line breaks are rejected in fields. Commas are allowed in `playerName`; that field is quoted and CSV-escaped when written, so names such as `Smith, Alice` can be read back safely. Saves are synchronized to prevent concurrent duplicate-location writes.
 
-Storage settings can be overridden in `src/main/resources/config.properties`, system properties, or environment variables: `RECORDS_DIR`, `PLAYER_DIR`, `GAME_DIR`, `ROOM_DIR`, `ROOM_KEY_DIR`, and `FRONTEND_URLS`.
+Storage and database settings can be overridden in `src/main/resources/config.properties`, system properties, or environment variables: `RECORDS_DIR`, `PLAYER_DIR`, `GAME_DIR`, `ROOM_DIR`, `ROOM_KEY_DIR`, `FRONTEND_URLS`, `CASSANDRA_IP`, `CASSANDRA_PORT`, `CASSANDRA_KEYSPACE`, and `CASSANDRA_TABLE`.
 
 ## Frontend integration
 
@@ -206,4 +217,6 @@ The frontend sends `dateSaved` in local `YYYY-MM-DD HH:mm:ss` form. This is acce
 - `src/main/java/com/svi/tictactoe/dao`: persistence abstraction
 - `src/main/java/com/svi/tictactoe/dto`: JSON request/response models
 - `src/main/resources/config.properties`: storage and CORS configuration
+- `database/schema.cql`: local Cassandra keyspace and table definitions
+- `docker-compose.yml`: local Cassandra service and schema initializer
 - `src/main/webapp`: WAR welcome page and static assets

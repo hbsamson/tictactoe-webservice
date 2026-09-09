@@ -1,0 +1,30 @@
+services:
+  cassandra:
+    image: cassandra:4.1
+    container_name: tictactoe-cassandra
+    ports:
+      - "9042:9042"
+    environment:
+      CASSANDRA_CLUSTER_NAME: tictactoe-local
+      MAX_HEAP_SIZE: 512M
+      HEAP_NEWSIZE: 100M
+    volumes:
+      - cassandra-data:/var/lib/cassandra
+    healthcheck:
+      test: ["CMD-SHELL", "cqlsh -e 'DESCRIBE KEYSPACES' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  cassandra-init:
+    image: cassandra:4.1
+    depends_on:
+      cassandra:
+        condition: service_healthy
+    volumes:
+      - ./database/schema.cql:/schema.cql:ro
+    entrypoint: ["cqlsh", "cassandra", "9042", "-f", "/schema.cql"]
+    restart: "no"
+
+volumes:
+  cassandra-data:
