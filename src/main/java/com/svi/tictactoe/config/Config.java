@@ -21,7 +21,7 @@ public final class Config {
         DEFAULTS.setProperty(Keys.CASSANDRA_KEYSPACE.value(), "batch1_2026_trainees");
         DEFAULTS.setProperty(Keys.CASSANDRA_GAME_MOVES_TABLE.value(), "samson_moves_table");
         DEFAULTS.setProperty(Keys.CASSANDRA_PLAYER_GAMES_TABLE.value(), "samson_games_table");
-        DEFAULTS.setProperty(Keys.CASSANDRA_ROOM_GAMES_TABLE.value(), "samson_room_table");
+        DEFAULTS.setProperty(Keys.CASSANDRA_ROOM_GAMES_TABLE.value(), "samson_rooms_table");
 
         try (
             InputStream inputStream = Config.class.getClassLoader().getResourceAsStream(CONFIG_FILE)) {
