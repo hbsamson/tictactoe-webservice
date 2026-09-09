@@ -1,5 +1,6 @@
 package com.svi.tictactoe.dto.response;
 
+import com.svi.tictactoe.constants.ResponseMessage;
 import java.util.List;
 
 public class GameListResponseDTO {
@@ -8,9 +9,9 @@ public class GameListResponseDTO {
 
     public GameListResponseDTO() {}
 
-    public GameListResponseDTO(List<GameItem> list, String msg) {
+    public GameListResponseDTO(List<GameItem> list, ResponseMessage message) {
         this.list = list;
-        this.msg = msg;
+        this.msg = message.getValue();
     }
 
     public List<GameItem> getList() {

@@ -4,6 +4,7 @@ import com.svi.tictactoe.dto.RoomDTO;
 import com.svi.tictactoe.dto.RoomDTO;
 import com.svi.tictactoe.dto.response.SaveResponseDTO;
 import com.svi.tictactoe.dto.response.ServiceResponseDTO;
+import com.svi.tictactoe.constants.ResponseMessage;
 import com.svi.tictactoe.services.GameService;
 import com.svi.tictactoe.services.impl.GameServiceImpl;
 import com.svi.tictactoe.utils.Validators;
@@ -34,7 +35,7 @@ public class RoomResource {
             return Response.ok(gameService.getRoomIds()).build();
         } catch (IOException e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(new SaveResponseDTO("The server ran into an unexpected exception."))
+                    .entity(new SaveResponseDTO(ResponseMessage.SERVER_ERROR))
                     .build();
         }
     }
@@ -56,7 +57,7 @@ public class RoomResource {
     public Response getRoomGames(@PathParam("roomId") String roomId) {
         if (!Validators.isValidRoomCode(roomId)) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(new SaveResponseDTO("Invalid room code."))
+                    .entity(new SaveResponseDTO(ResponseMessage.INVALID_ROOM_CODE))
                     .build();
         }
 
@@ -64,7 +65,7 @@ public class RoomResource {
             return Response.ok(gameService.getRoomGames(roomId)).build();
         } catch (IOException e) {
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity(new SaveResponseDTO("Room record not found."))
+                    .entity(new SaveResponseDTO(ResponseMessage.ROOM_NOT_FOUND))
                     .build();
         }
     }

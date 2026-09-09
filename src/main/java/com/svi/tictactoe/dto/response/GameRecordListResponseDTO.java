@@ -1,6 +1,7 @@
 package com.svi.tictactoe.dto.response;
 
 import com.svi.tictactoe.dto.GameRecordDTO;
+import com.svi.tictactoe.constants.ResponseMessage;
 
 import java.util.List;
 
@@ -10,9 +11,9 @@ public class GameRecordListResponseDTO {
 
     public GameRecordListResponseDTO() {}
 
-    public GameRecordListResponseDTO(List<GameRecordDTO> list, String msg) {
+    public GameRecordListResponseDTO(List<GameRecordDTO> list, ResponseMessage message) {
         this.list = list;
-        this.msg = msg;
+        this.msg = message.getValue();
     }
 
     public List<GameRecordDTO> getList() {
