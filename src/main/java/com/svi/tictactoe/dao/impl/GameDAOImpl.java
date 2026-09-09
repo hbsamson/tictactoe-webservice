@@ -1,77 +1,91 @@
 package com.svi.tictactoe.dao.impl;
 
 import com.svi.tictactoe.dao.GameDAO;
+import com.svi.tictactoe.dao.GameMoveDAO;
+import com.svi.tictactoe.dao.PlayerGameDAO;
+import com.svi.tictactoe.dao.RoomGameDAO;
 import com.svi.tictactoe.dto.GameRecordDTO;
 import com.svi.tictactoe.dto.RoomDTO;
-import com.svi.tictactoe.services.FileStorageService;
-import com.svi.tictactoe.services.impl.FileStorageServiceImpl;
+import com.svi.tictactoe.connection.CassandraConnection;
+import com.datastax.driver.core.Session;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
-public class GameDAOImpl implements GameDAO {
-    private FileStorageService fileStorageService = new FileStorageServiceImpl();
+/** Compatibility facade that delegates each operation to its table-specific DAO. */
+public final class GameDAOImpl implements GameDAO {
+    private final GameMoveDAO gameMoves;
+    private final PlayerGameDAO playerGames;
+    private final RoomGameDAO roomGames;
+
+    public GameDAOImpl() {
+        this(CassandraConnection.getInstance().getSession());
+    }
+
+    public GameDAOImpl(Session session) {
+        this(   new GameMoveDAOImpl(session),
+                new PlayerGameDAOImpl(session),
+                new RoomGameDAOImpl(session));
+    }
+
+    public GameDAOImpl(GameMoveDAO gameMoves, PlayerGameDAO playerGames, RoomGameDAO roomGames) {
+        this.gameMoves = Objects.requireNonNull(gameMoves, "gameMoves");
+        this.playerGames = Objects.requireNonNull(playerGames, "playerGames");
+        this.roomGames = Objects.requireNonNull(roomGames, "roomGames");
+    }
 
     @Override
     public void saveMove(GameRecordDTO record) throws IOException {
-        fileStorageService.appendMoveToGame(record);
+        gameMoves.save(record);
     }
 
     @Override
     public void addGameToPlayer(String playerId, String gameId) throws IOException {
-        fileStorageService.appendGameToPlayer(playerId, gameId);
+        playerGames.save(playerId, gameId);
     }
 
     @Override
     public void addGameToRoom(String roomCode, String gameId, String createdDate) throws IOException {
-        fileStorageService.appendGameToRoom(roomCode, gameId, createdDate);
-    }
-
-    @Override
-    public void saveRoomKey(String roomKey, List<String> gameIds) throws IOException {
-        fileStorageService.appendGameIdsToRoomKey(roomKey, gameIds);
+        roomGames.save(roomCode, gameId, createdDate);
     }
 
     @Override
     public List<GameRecordDTO> readMoves(String gameId) throws IOException {
-        return fileStorageService.readGameMoves(gameId);
+        return gameMoves.findByGameId(gameId);
     }
 
     @Override
     public List<String> readPlayerGames(String playerId) throws IOException {
-        return fileStorageService.readPlayerGames(playerId);
+        return playerGames.findByPlayerId(playerId);
     }
 
     @Override
     public String readPlayerName(String gameId) throws IOException {
-        return fileStorageService.readPlayerName(gameId);
-    }
-
-    public List<String> readGames(String gameId) throws IOException {
-        return fileStorageService.readGames(gameId);
+        return gameMoves.findPlayerName(gameId);
     }
 
     @Override
     public List<RoomDTO> readRoomGames(String roomCode) throws IOException {
-        return fileStorageService.readRoomGames(roomCode);
+        return roomGames.findByRoomId(roomCode);
     }
 
     @Override
     public List<String> readRoomIds() throws IOException {
-        return fileStorageService.readRoomIds();
+        return roomGames.findRoomIds();
     }
 
     @Override
     public boolean playerExists(String playerId) throws IOException {
-        return fileStorageService.playerExists(playerId);
+        return playerGames.exists(playerId);
     }
 
     @Override
     public boolean gameExists(String gameId) throws IOException {
-        return fileStorageService.gameExists(gameId);
+        return gameMoves.exists(gameId);
     }
 
     @Override
     public boolean roomExists(String roomCode) throws IOException {
-        return fileStorageService.roomExists(roomCode);
+        return roomGames.exists(roomCode);
     }
 }
