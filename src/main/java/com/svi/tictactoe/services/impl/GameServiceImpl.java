@@ -183,17 +183,17 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public void saveGameToRoom(String roomCode, String gameId, String createdDate) throws IOException {
-        gameDAO.addGameToRoom(roomCode, gameId, createdDate);
+    public void saveGameToRoom(String roomId, String gameId, String createdDate) throws IOException {
+        gameDAO.addGameToRoom(roomId, gameId, createdDate);
     }
 
     @Override
-    public List<RoomDTO> getRoomGames(String roomCode) throws IOException {
-        if (!gameDAO.roomExists(roomCode)) {
+    public List<RoomDTO> getRoomGames(String roomId) throws IOException {
+        if (!gameDAO.roomExists(roomId)) {
             throw new IOException("Room not found");
         }
         
-        return gameDAO.readRoomGames(roomCode);
+        return gameDAO.readRoomGames(roomId);
     }
 
     @Override

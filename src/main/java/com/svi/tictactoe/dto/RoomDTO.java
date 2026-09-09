@@ -31,4 +31,9 @@ public class RoomDTO {
     @NotEmpty
     public List<String> getGameIds() { return gameIds; }
 
+    public void setRoomId(String roomId) { this.roomId = roomId; }
+    public void setGameId(String gameId) { this.gameId = gameId; }
+    public void setGameIds(List<String> gameIds) { this.gameIds = gameIds; }
+    public void setCreatedDate(String createdDate) { this.createdDate = createdDate; }
+
 }
