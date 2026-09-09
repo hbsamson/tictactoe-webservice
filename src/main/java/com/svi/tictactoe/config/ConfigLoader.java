@@ -32,8 +32,24 @@ public final class ConfigLoader {
         return getRequired(Config.Keys.CASSANDRA_KEYSPACE);
     }
 
-    public String getCassandraTable() {
-        return getRequired(Config.Keys.CASSANDRA_TABLE);
+    public String getGameMovesTable() {
+        return getIdentifier(Config.Keys.CASSANDRA_GAME_MOVES_TABLE);
+    }
+
+    public String getPlayerGamesTable() {
+        return getIdentifier(Config.Keys.CASSANDRA_PLAYER_GAMES_TABLE);
+    }
+
+    public String getRoomGamesTable() {
+        return getIdentifier(Config.Keys.CASSANDRA_ROOM_GAMES_TABLE);
+    }
+
+    private String getIdentifier(Config.Keys key) {
+        String value = getRequired(key);
+        if (!value.matches("[A-Za-z][A-Za-z0-9_]*")) {
+            throw new IllegalStateException(key.value() + " is not a valid CQL identifier: " + value);
+        }
+        return value;
     }
 
     private String getRequired(Config.Keys key) {

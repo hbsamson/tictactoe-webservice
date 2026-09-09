@@ -1,12 +1,18 @@
 # Tic Tac Toe web service
 
-This Jakarta EE 8 REST service persists Tic Tac Toe moves, player history, rooms, and rematch groups as flat files. It is packaged as a WAR and runs with Payara Micro.
+This Jakarta EE 8 REST service persists Tic Tac Toe moves, player history, and rooms in Cassandra. It is packaged as a WAR and runs with Payara Micro.
 
 ## Running
 
-Requirements: Java 8+ (the Maven Wrapper is included), Docker, and Docker Compose.
+Requirements: Java 8+ (the Maven Wrapper is included) and Cassandra 3.11+.
 
-Start the local Cassandra database first. The one-shot `cassandra-init` service
+For a locally installed Cassandra, apply the schema after starting the server:
+
+```powershell
+cqlsh localhost -f database/schema.cql
+```
+
+Alternatively, Docker Compose can start Cassandra. The one-shot `cassandra-init` service
 applies `database/schema.cql` after Cassandra is healthy:
 
 ```bash
@@ -15,7 +21,7 @@ docker compose up -d cassandra cassandra-init
 
 The service connects to `localhost:9042` and the `batch1_2026_trainees` keyspace by default.
 Override `CASSANDRA_IP`, `CASSANDRA_PORT`, `CASSANDRA_KEYSPACE`, or
-`CASSANDRA_TABLE` with environment variables or Java system properties when needed.
+the three table-name settings with environment variables or Java system properties when needed.
 
 ```bash
 ./mvnw clean package payara-micro:start
@@ -174,27 +180,16 @@ GET /api/hello?name=Ann
 
 Returns the sample Hello resource. A missing or blank name defaults to `world`. Can be used for checking if the webservices server is online.
 
-## Flat-file storage
+## Cassandra storage
 
-The default records root is `records`:
+The persistence layer uses three query-oriented Cassandra tables. Their definitions
+are in `database/schema.cql`.
 
-```text
-records/
-├── gameid/<gameId>.txt       # one CSV move record per line
-├── playerid/<playerId>.txt   # one game ID per line
-└── roomid/<roomId>.txt       # gameId,createdDate per line
-```
+The tables are independently accessed through `GameMoveDAOImpl`,
+`PlayerGameDAOImpl`, and `RoomGameDAOImpl`. `GameDAOImpl` is a thin
+compatibility facade for the existing service contract.
 
-Move records use either format:
-
-```text
-gameId,playerId,symbol,location,dateSaved
-gameId,playerId,playerName,symbol,location,dateSaved
-```
-
-Line breaks are rejected in fields. Commas are allowed in `playerName`; that field is quoted and CSV-escaped when written, so names such as `Smith, Alice` can be read back safely. Saves are synchronized to prevent concurrent duplicate-location writes.
-
-Storage and database settings can be overridden in `src/main/resources/config.properties`, system properties, or environment variables: `RECORDS_DIR`, `PLAYER_DIR`, `GAME_DIR`, `ROOM_DIR`, `ROOM_KEY_DIR`, `FRONTEND_URLS`, `CASSANDRA_IP`, `CASSANDRA_PORT`, `CASSANDRA_KEYSPACE`, and `CASSANDRA_TABLE`.
+Database settings can be overridden in `src/main/resources/config.properties`, system properties, or environment variables: `CASSANDRA_IP`, `CASSANDRA_PORT`, `CASSANDRA_KEYSPACE`, `CASSANDRA_GAME_MOVES_TABLE`, `CASSANDRA_PLAYER_GAMES_TABLE`, and `CASSANDRA_ROOM_GAMES_TABLE`.
 
 ## Frontend integration
 

@@ -13,8 +13,16 @@ import com.svi.tictactoe.config.ConfigLoader;
  */
 public final class CassandraConnection implements AutoCloseable {
 
+    private static class Holder {
+        private static final CassandraConnection INSTANCE = new CassandraConnection();
+    }
+
     private Cluster cluster;
     private Session session;
+
+    public static CassandraConnection getInstance() {
+        return Holder.INSTANCE;
+    }
 
     /**
      * Explicit lifecycle "init" step — separate from the constructor so this class
