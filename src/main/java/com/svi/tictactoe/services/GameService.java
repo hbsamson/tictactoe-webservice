@@ -4,19 +4,17 @@ import com.svi.tictactoe.dto.GameRecordDTO;
 import com.svi.tictactoe.dto.response.GameListResponseDTO;
 import com.svi.tictactoe.dto.response.GameRecordListResponseDTO;
 import com.svi.tictactoe.dto.response.SaveResponseDTO;
-import com.svi.tictactoe.dto.response.ServiceResponseDTO;
 import com.svi.tictactoe.dto.RoomDTO;
-import java.io.IOException;
 import java.util.List;
 
 public interface GameService {
-    ServiceResponseDTO<SaveResponseDTO> saveMove(GameRecordDTO record);
-    ServiceResponseDTO<GameRecordListResponseDTO> getGameDetails(String gameId);
-    ServiceResponseDTO<GameListResponseDTO> getPlayerGames(String playerId);
-    ServiceResponseDTO<SaveResponseDTO> saveRoom(RoomDTO roomRecord);
+    SaveResponseDTO saveMove(GameRecordDTO record);
+    GameRecordListResponseDTO getGameDetails(String gameId);
+    GameListResponseDTO getPlayerGames(String playerId);
+    SaveResponseDTO saveRoom(RoomDTO roomRecord);
     
-    void saveGameToRoom(String roomCode, String gameId, String createdDate) throws IOException;
+    void saveGameToRoom(String roomCode, String gameId, String createdDate);
 
-    List<RoomDTO> getRoomGames(String roomCode) throws IOException;
-    List<String> getRoomIds() throws IOException;
+    List<RoomDTO> getRoomGames(String roomCode);
+    List<String> getRoomIds();
 }

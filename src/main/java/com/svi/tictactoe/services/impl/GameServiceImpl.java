@@ -5,13 +5,16 @@ import com.svi.tictactoe.repository.GameRepository;
 import com.svi.tictactoe.dto.GameRecordDTO;
 import com.svi.tictactoe.dto.RoomDTO;
 import com.svi.tictactoe.dto.PlayerGameDTO;
-import com.svi.tictactoe.dto.response.ServiceResponseDTO;
 import com.svi.tictactoe.dto.response.GameListResponseDTO;
 import com.svi.tictactoe.dto.response.GameRecordListResponseDTO;
 import com.svi.tictactoe.dto.response.SaveResponseDTO;
 import com.svi.tictactoe.constants.ResponseMessage;
 import com.svi.tictactoe.services.GameService;
 import com.svi.tictactoe.utils.Validators;
+import com.svi.tictactoe.exception.InvalidRequestException;
+import com.svi.tictactoe.exception.LocationOccupiedException;
+import com.svi.tictactoe.exception.PersistenceException;
+import com.svi.tictactoe.exception.ResourceNotFoundException;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -19,7 +22,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
-import javax.ws.rs.core.Response;
 
 public class GameServiceImpl implements GameService {
     private static final Object SAVE_MOVE_LOCK = new Object();
@@ -34,12 +36,9 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public ServiceResponseDTO<SaveResponseDTO> saveMove(GameRecordDTO record) {
+    public SaveResponseDTO saveMove(GameRecordDTO record) {
         if (record == null) {
-            return new ServiceResponseDTO<>(
-                    new SaveResponseDTO(ResponseMessage.RECORD_NOT_SAVED),
-                    Response.Status.BAD_REQUEST
-            );
+            throw new InvalidRequestException(ResponseMessage.RECORD_NOT_SAVED);
         }
 
         try {
@@ -47,75 +46,48 @@ public class GameServiceImpl implements GameService {
                 List<GameRecordDTO> existingMoves = gameRepository.findMovesByGameId(record.getGameId());
                 for (GameRecordDTO existingMove : existingMoves) {
                     if (existingMove != null && record.getLocation().equals(existingMove.getLocation())) {
-                        return new ServiceResponseDTO<>(
-                                new SaveResponseDTO(ResponseMessage.LOCATION_OCCUPIED),
-                                Response.Status.CONFLICT
-                        );
+                        throw new LocationOccupiedException();
                     }
                 }
 
                 gameRepository.saveMove(record);
                 gameRepository.savePlayerGame(record);
             }
-            return new ServiceResponseDTO<>(
-                    new SaveResponseDTO(ResponseMessage.RECORD_SAVED),
-                Response.Status.OK
-            );
+            return new SaveResponseDTO(ResponseMessage.RECORD_SAVED);
 
         } catch (IOException e) {
-            return new ServiceResponseDTO<>(
-                    new SaveResponseDTO(ResponseMessage.SERVER_ERROR),
-                    Response.Status.INTERNAL_SERVER_ERROR
-            );
+            throw new PersistenceException(e);
         }
     }
 
     @Override
-    public ServiceResponseDTO<GameRecordListResponseDTO> getGameDetails(String gameId) {
+    public GameRecordListResponseDTO getGameDetails(String gameId) {
         if (gameId == null || gameId.trim().isEmpty() || !Validators.isValidUUID(gameId)) {
-            return new ServiceResponseDTO<>(
-                    new GameRecordListResponseDTO(null, ResponseMessage.INVALID_GAME_ID),
-                Response.Status.BAD_REQUEST
-            );
+            throw new InvalidRequestException(ResponseMessage.INVALID_GAME_ID);
         }
 
         try {
             List<GameRecordDTO> gameRecords = gameRepository.findMovesByGameId(gameId);
-            return new ServiceResponseDTO<>(
-                    new GameRecordListResponseDTO(gameRecords, ResponseMessage.RECORDS_FOUND),
-                    Response.Status.OK
-            );
+            return new GameRecordListResponseDTO(gameRecords, ResponseMessage.RECORDS_FOUND);
 
         } catch (IOException e) {
             if (e.getMessage() != null && e.getMessage().contains("Game ID not found")) {
-                return new ServiceResponseDTO<>(
-                        new GameRecordListResponseDTO(null, ResponseMessage.GAME_NOT_FOUND),
-                        Response.Status.NOT_FOUND
-                );
+                throw new ResourceNotFoundException(ResponseMessage.GAME_NOT_FOUND);
             }
 
-            return new ServiceResponseDTO<>(
-                new GameRecordListResponseDTO(null, ResponseMessage.SERVER_ERROR),
-                    Response.Status.INTERNAL_SERVER_ERROR
-            );
+            throw new PersistenceException(e);
         }
     }
 
     @Override
-    public ServiceResponseDTO<GameListResponseDTO> getPlayerGames(String playerId) {
+    public GameListResponseDTO getPlayerGames(String playerId) {
         if (playerId == null || playerId.trim().isEmpty() || !Validators.isValidUUID(playerId)) {
-            return new ServiceResponseDTO<>(
-                    new GameListResponseDTO(null, ResponseMessage.INVALID_PLAYER_ID),
-                    Response.Status.BAD_REQUEST
-            );
+            throw new InvalidRequestException(ResponseMessage.INVALID_PLAYER_ID);
         }
 
         try {
             if (!gameRepository.playerExists(playerId)) {
-                return new ServiceResponseDTO<>(
-                        new GameListResponseDTO(null, ResponseMessage.PLAYER_NOT_FOUND),
-                        Response.Status.NOT_FOUND
-                );
+                throw new ResourceNotFoundException(ResponseMessage.PLAYER_NOT_FOUND);
             }
 
             List<PlayerGameDTO> games = gameRepository.findGamesByPlayerId(playerId);
@@ -125,39 +97,27 @@ public class GameServiceImpl implements GameService {
                 gameItems.add(new GameListResponseDTO.GameItem(
                         game.getGameId(), game.getPlayerName(), game.getPlayerAvatar(), game.getGameDate()));
             }
-            return new ServiceResponseDTO<>(
-                    new GameListResponseDTO(gameItems, ResponseMessage.PLAYER_GAMES_FOUND),
-                Response.Status.OK
-            );
+            return new GameListResponseDTO(gameItems, ResponseMessage.PLAYER_GAMES_FOUND);
 
         } catch (IOException e) {
-            return new ServiceResponseDTO<>(
-                new GameListResponseDTO(null, ResponseMessage.SERVER_ERROR),
-                    Response.Status.INTERNAL_SERVER_ERROR
-            );
+            throw new PersistenceException(e);
         }
     }
 
     @Override
-    public ServiceResponseDTO<SaveResponseDTO> saveRoom(RoomDTO roomRecord) {
+    public SaveResponseDTO saveRoom(RoomDTO roomRecord) {
         if (roomRecord == null
                 || roomRecord.getRoomId() == null
                 || roomRecord.getRoomId().trim().isEmpty()
                 || !Validators.isValidRoomCode(roomRecord.getRoomId())
                 || roomRecord.getGameIds() == null
                 || roomRecord.getGameIds().isEmpty()) {
-            return new ServiceResponseDTO<>(
-                    new SaveResponseDTO(ResponseMessage.INVALID_ROOM_ID),
-                Response.Status.BAD_REQUEST
-            );
+            throw new InvalidRequestException(ResponseMessage.INVALID_ROOM_ID);
         }
 
         for (String gameId : roomRecord.getGameIds()) {
             if (gameId == null || gameId.trim().isEmpty() || !Validators.isValidUUID(gameId)) {
-                return new ServiceResponseDTO<>(
-                        new SaveResponseDTO(ResponseMessage.INVALID_GAME_IDS),
-                    Response.Status.BAD_REQUEST
-                );
+                throw new InvalidRequestException(ResponseMessage.INVALID_GAME_IDS);
             }
         }
 
@@ -170,34 +130,42 @@ public class GameServiceImpl implements GameService {
                     gameRepository.saveRoomGame(roomId, gameId.trim(), createdDate);
                 }
             }
-            return new ServiceResponseDTO<>(
-                    new SaveResponseDTO(ResponseMessage.ROOM_GAMES_SAVED),
-                Response.Status.OK
-            );
+            return new SaveResponseDTO(ResponseMessage.ROOM_GAMES_SAVED);
         } catch (IOException e) {
-            return new ServiceResponseDTO<>(
-                    new SaveResponseDTO(ResponseMessage.SERVER_ERROR),
-                Response.Status.INTERNAL_SERVER_ERROR
-            );
+            throw new PersistenceException(e);
         }
     }
 
     @Override
-    public void saveGameToRoom(String roomId, String gameId, String createdDate) throws IOException {
-        gameRepository.saveRoomGame(roomId, gameId, createdDate);
-    }
-
-    @Override
-    public List<RoomDTO> getRoomGames(String roomId) throws IOException {
-        if (!gameRepository.roomExists(roomId)) {
-            throw new IOException("Room not found");
+    public void saveGameToRoom(String roomId, String gameId, String createdDate) {
+        try {
+            gameRepository.saveRoomGame(roomId, gameId, createdDate);
+        } catch (IOException e) {
+            throw new PersistenceException(e);
         }
-        
-        return gameRepository.findGamesByRoomId(roomId);
     }
 
     @Override
-    public List<String> getRoomIds() throws IOException {
-        return gameRepository.findRoomIds();
+    public List<RoomDTO> getRoomGames(String roomId) {
+        if (!Validators.isValidRoomCode(roomId)) {
+            throw new InvalidRequestException(ResponseMessage.INVALID_ROOM_CODE);
+        }
+        try {
+            if (!gameRepository.roomExists(roomId)) {
+                throw new ResourceNotFoundException(ResponseMessage.ROOM_NOT_FOUND);
+            }
+            return gameRepository.findGamesByRoomId(roomId);
+        } catch (IOException e) {
+            throw new PersistenceException(e);
+        }
+    }
+
+    @Override
+    public List<String> getRoomIds() {
+        try {
+            return gameRepository.findRoomIds();
+        } catch (IOException e) {
+            throw new PersistenceException(e);
+        }
     }
 }
