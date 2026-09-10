@@ -36,9 +36,17 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public SaveResponseDTO saveMove(GameRecordDTO record) {
+    public SaveResponseDTO saveMove(String roomId, String gameId, GameRecordDTO record) {
         if (record == null) {
             throw new InvalidRequestException(ResponseMessage.RECORD_NOT_SAVED);
+        }
+        if (!Validators.isValidRoomCode(roomId)) {
+            throw new InvalidRequestException(ResponseMessage.INVALID_ROOM_CODE);
+        }
+        if (!Validators.isValidUUID(gameId)
+                || record.getGameId() == null
+                || !gameId.equals(record.getGameId())) {
+            throw new InvalidRequestException(ResponseMessage.INVALID_GAME_ID);
         }
 
         try {
@@ -52,6 +60,7 @@ public class GameServiceImpl implements GameService {
 
                 gameRepository.saveMove(record);
                 gameRepository.savePlayerGame(record);
+                gameRepository.saveRoomGame(roomId, gameId, Instant.now().toString());
             }
             return new SaveResponseDTO(ResponseMessage.RECORD_SAVED);
 

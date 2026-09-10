@@ -8,7 +8,7 @@ import com.svi.tictactoe.dto.RoomDTO;
 import java.util.List;
 
 public interface GameService {
-    SaveResponseDTO saveMove(GameRecordDTO record);
+    SaveResponseDTO saveMove(String roomId, String gameId, GameRecordDTO record);
     GameRecordListResponseDTO getGameDetails(String gameId);
     GameListResponseDTO getPlayerGames(String playerId);
     SaveResponseDTO saveRoom(RoomDTO roomRecord);

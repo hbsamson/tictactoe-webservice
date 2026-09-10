@@ -48,7 +48,7 @@ Authentication is not implemented. JSON requests use `Content-Type: application/
 ### Save a move
 
 ```http
-POST /api/game/save
+POST /api/rooms/{roomId}/games/{gameId}/moves
 ```
 
 ```json
@@ -62,11 +62,15 @@ POST /api/game/save
 }
 ```
 
-`playerName` is optional. `gameId` and `playerId` must be canonical UUIDs; `symbol` must be `X` or `O`; `location` must be `0` through `8`; and `dateSaved` must be non-empty. The service does not generate `dateSaved`. A location cannot be saved twice in the same game.
+`roomId` must be a 4–6 character alphanumeric room code. The path `gameId`
+must match the `gameId` in the request body. `playerName` is optional. `gameId`
+and `playerId` must be canonical UUIDs; `symbol` must be `X` or `O`; `location`
+must be `0` through `8`; and `dateSaved` must be non-empty. The service does
+not generate `dateSaved`. A location cannot be saved twice in the same game.
 
 Responses:
 
-- `200`: `{ "msg": "Record saved" }`
+- `201`: `{ "msg": "Record saved" }`
 - `401`: `{ "msg": "Invalid gameId format" }` or `{ "msg": "Invalid playerId format" }` for invalid UUIDs.
 - `400`: `{ "msg": "Invalid symbol" }` for an invalid symbol; otherwise `{ "msg": "Record could not be saved" }`
 - `409`: `{ "msg": "Location is already occupied." }`
@@ -77,7 +81,7 @@ On success, the move is appended to the game file and the game ID is added to th
 ### List a player's games
 
 ```http
-GET /api/player/{playerId}/games
+GET /api/players/{playerId}/games
 ```
 
 There is no request body. `playerId` must be a canonical UUID.
@@ -102,7 +106,7 @@ The supplied specification says `402` for a missing player record; the implement
 ### Get a game's move records
 
 ```http
-GET /api/game/{gameId}
+GET /api/games/{gameId}/moves
 ```
 
 The path parameter is `gameId`, not `playerId` as shown in the supplied specification. It must be a canonical UUID.
@@ -134,12 +138,11 @@ Records are returned in file/save order; the service does not sort by `dateSaved
 There is one room-save operation:
 
 ```http
-POST /api/room/save
+POST /api/rooms/{roomId}/games
 ```
 
 ```json
 {
-  "roomId": "ABCDEF",
   "gameIds": ["1dffda51-f610-4adc-8720-8424dbab8bdc"]
 }
 ```
@@ -155,7 +158,7 @@ The request is deserialized into `RoomDTO`. The service creates one `createdDate
 ### Get games in a room
 
 ```http
-GET /api/room/{roomId}
+GET /api/rooms/{roomId}/games
 ```
 
 `roomId` is alphanumeric and 4–6 characters. A successful response (`200`) is an array:
@@ -202,11 +205,11 @@ Database settings can be overridden in `src/main/resources/config.properties`, s
 
 The companion frontend is at [Tictactoe Webservices UI](https://github.com/hbsamson/tictactoe/tree/feat/webservices). Its web-service integration is in `js/api.js` and `js/room/room-service.js`:
 
-- `POST /api/game/save` is called after each non-spectator move.
-- `GET /api/player/{playerId}/games` loads the history table.
-- `GET /api/game/{gameId}` loads the move details for each game.
-- `POST /api/room/save` associates the room's round IDs with its room ID.
-- `GET /api/room/{roomId}` is available to retrieve room records, although the current history flow does not require it.
+- `POST /api/rooms/{roomId}/games/{gameId}/moves` is called after each non-spectator move.
+- `GET /api/players/{playerId}/games` loads the history table.
+- `GET /api/games/{gameId}/moves` loads the move details for each game.
+- `POST /api/rooms/{roomId}/games` associates round IDs with a room.
+- `GET /api/rooms/{roomId}/games` retrieves the games associated with a room.
 
 The frontend also includes the required History link, player-ID search, game table, move details, and replay button. It sorts retrieved moves by `dateSaved` before rendering/replay. Gameplay room creation, board polling, moves, and reset still use the separate legacy game server configured as `BASEGAME_API`; the `/api` service is the persistence/history service.
 
