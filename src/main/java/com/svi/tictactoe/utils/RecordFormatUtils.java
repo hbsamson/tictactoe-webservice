@@ -11,6 +11,16 @@ public final class RecordFormatUtils {
     private RecordFormatUtils() { }
 
     public static String gameToCsv(GameRecordDTO record) {
+        if (record.getPlayerAvatar() != null && !record.getPlayerAvatar().isEmpty()) {
+            return String.format("%s,%s,%s,%s,%s,%s,%s",
+                    record.getGameId(),
+                    record.getPlayerId(),
+                    escapeCsv(valueOrEmpty(record.getPlayerName())),
+                    escapeCsv(record.getPlayerAvatar()),
+                    record.getSymbol(),
+                    record.getLocation(),
+                    record.getDateSaved());
+        }
         if (record.getPlayerName() != null && !record.getPlayerName().isEmpty()) {
             return String.format("%s,%s,%s,%s,%s,%s",
                     record.getGameId(),
@@ -36,6 +46,12 @@ public final class RecordFormatUtils {
         if (fields.length == 6) {
             return new GameRecordDTO(fields[0], fields[1], fields[2], fields[3], fields[4], fields[5]);
         }
+        if (fields.length == 7) {
+            GameRecordDTO record = new GameRecordDTO(
+                    fields[0], fields[1], fields[2], fields[4], fields[5], fields[6]);
+            record.setPlayerAvatar(fields[3]);
+            return record;
+        }
         throw new IllegalArgumentException("Invalid game record format");
     }
 
@@ -51,6 +67,10 @@ public final class RecordFormatUtils {
         return value.indexOf(',') >= 0 || value.indexOf('"') >= 0
                 ? "\"" + value.replace("\"", "\"\"") + "\""
                 : value;
+    }
+
+    private static String valueOrEmpty(String value) {
+        return value == null ? "" : value;
     }
 
     private static String[] parseCsv(String line) {

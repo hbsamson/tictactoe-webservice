@@ -26,7 +26,7 @@ public class GameServiceImpl implements GameService {
     private final GameRepository gameRepository;
 
     public GameServiceImpl() {
-        this(new CassandraGameRepository());
+        this(new CassandraGameRepository()); // can be changed to FileGameRepository() if needed
     }
 
     public GameServiceImpl(GameRepository gameRepository) {
