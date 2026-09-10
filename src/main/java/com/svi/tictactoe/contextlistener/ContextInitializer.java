@@ -5,9 +5,11 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import com.svi.tictactoe.connection.CassandraConnection;
+import java.util.logging.Logger;
 
 @WebListener
 public class ContextInitializer implements ServletContextListener {
+    private static final Logger LOGGER = Logger.getLogger(ContextInitializer.class.getName());
     private CassandraConnection cassandraConnection;
 
     @Override
@@ -15,6 +17,7 @@ public class ContextInitializer implements ServletContextListener {
         cassandraConnection = CassandraConnection.getInstance();
         cassandraConnection.initialize();
         sce.getServletContext().setAttribute("cassandraConnection", cassandraConnection);
+        LOGGER.info("Application context initialized");
     }
 
     @Override
@@ -22,6 +25,6 @@ public class ContextInitializer implements ServletContextListener {
         if (cassandraConnection != null) {
             cassandraConnection.close();
         }
-        System.out.println("Application context destroyed.");
+        LOGGER.info("Application context destroyed");
     }
 }

@@ -17,9 +17,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /** Flat-file storage implementation recovered from the pre-Cassandra version. */
 public final class FileStorageServiceImpl implements FileStorageService {
+    private static final Logger LOGGER = Logger.getLogger(FileStorageServiceImpl.class.getName());
     private static final String PLAYER_ID_SUBDIRECTORY = Config.get(Config.Keys.PLAYER_DIR.value());
     private static final String GAME_ID_SUBDIRECTORY = Config.get(Config.Keys.GAME_DIR.value());
     private static final String ROOM_ID_SUBDIRECTORY = Config.get(Config.Keys.ROOM_DIR.value());
@@ -88,7 +91,8 @@ public final class FileStorageServiceImpl implements FileStorageService {
             try {
                 moves.add(RecordFormatUtils.gameFromCsv(line));
             } catch (IllegalArgumentException e) {
-                System.err.println("Skipping malformed game record line: " + line);
+                LOGGER.log(Level.WARNING, "Skipping malformed game record for gameId={0}: {1}",
+                        new Object[] { gameId, e.getMessage() });
             }
         }
         return moves;
@@ -128,7 +132,8 @@ public final class FileStorageServiceImpl implements FileStorageService {
             try {
                 roomGames.add(RecordFormatUtils.roomFromCsv(roomId, line));
             } catch (IllegalArgumentException e) {
-                System.err.println("Skipping malformed room record line: " + line);
+                LOGGER.log(Level.WARNING, "Skipping malformed room record for roomId={0}: {1}",
+                        new Object[] { roomId, e.getMessage() });
             }
         }
         return roomGames;
