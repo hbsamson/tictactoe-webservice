@@ -1,7 +1,7 @@
 package com.svi.tictactoe.services.impl;
 
-import com.svi.tictactoe.dao.GameDAO;
-import com.svi.tictactoe.dao.impl.GameDAOImpl;
+import com.svi.tictactoe.repository.CassandraGameRepository;
+import com.svi.tictactoe.repository.GameRepository;
 import com.svi.tictactoe.dto.GameRecordDTO;
 import com.svi.tictactoe.dto.RoomDTO;
 import com.svi.tictactoe.dto.PlayerGameDTO;
@@ -23,14 +23,14 @@ import javax.ws.rs.core.Response;
 
 public class GameServiceImpl implements GameService {
     private static final Object SAVE_MOVE_LOCK = new Object();
-    private final GameDAO gameDAO;
+    private final GameRepository gameRepository;
 
     public GameServiceImpl() {
-        this(new GameDAOImpl());
+        this(new CassandraGameRepository());
     }
 
-    public GameServiceImpl(GameDAO gameDAO) {
-        this.gameDAO = Objects.requireNonNull(gameDAO, "gameDAO");
+    public GameServiceImpl(GameRepository gameRepository) {
+        this.gameRepository = Objects.requireNonNull(gameRepository, "gameRepository");
     }
 
     @Override
@@ -44,7 +44,7 @@ public class GameServiceImpl implements GameService {
 
         try {
             synchronized (SAVE_MOVE_LOCK) {
-                List<GameRecordDTO> existingMoves = gameDAO.readMoves(record.getGameId());
+                List<GameRecordDTO> existingMoves = gameRepository.findMovesByGameId(record.getGameId());
                 for (GameRecordDTO existingMove : existingMoves) {
                     if (existingMove != null && record.getLocation().equals(existingMove.getLocation())) {
                         return new ServiceResponseDTO<>(
@@ -54,8 +54,8 @@ public class GameServiceImpl implements GameService {
                     }
                 }
 
-                gameDAO.saveMove(record);
-                gameDAO.addGameToPlayer(record);
+                gameRepository.saveMove(record);
+                gameRepository.savePlayerGame(record);
             }
             return new ServiceResponseDTO<>(
                     new SaveResponseDTO(ResponseMessage.RECORD_SAVED),
@@ -80,7 +80,7 @@ public class GameServiceImpl implements GameService {
         }
 
         try {
-            List<GameRecordDTO> gameRecords = gameDAO.readMoves(gameId);
+            List<GameRecordDTO> gameRecords = gameRepository.findMovesByGameId(gameId);
             return new ServiceResponseDTO<>(
                     new GameRecordListResponseDTO(gameRecords, ResponseMessage.RECORDS_FOUND),
                     Response.Status.OK
@@ -111,14 +111,14 @@ public class GameServiceImpl implements GameService {
         }
 
         try {
-            if (!gameDAO.playerExists(playerId)) {
+            if (!gameRepository.playerExists(playerId)) {
                 return new ServiceResponseDTO<>(
                         new GameListResponseDTO(null, ResponseMessage.PLAYER_NOT_FOUND),
                         Response.Status.NOT_FOUND
                 );
             }
 
-            List<PlayerGameDTO> games = gameDAO.readPlayerGames(playerId);
+            List<PlayerGameDTO> games = gameRepository.findGamesByPlayerId(playerId);
             List<GameListResponseDTO.GameItem> gameItems = new ArrayList<>();
 
             for (PlayerGameDTO game : games) {
@@ -167,7 +167,7 @@ public class GameServiceImpl implements GameService {
 
             synchronized (SAVE_MOVE_LOCK) {
                 for (String gameId : new LinkedHashSet<>(roomRecord.getGameIds())) {
-                    gameDAO.addGameToRoom(roomId, gameId.trim(), createdDate);
+                    gameRepository.saveRoomGame(roomId, gameId.trim(), createdDate);
                 }
             }
             return new ServiceResponseDTO<>(
@@ -184,20 +184,20 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public void saveGameToRoom(String roomId, String gameId, String createdDate) throws IOException {
-        gameDAO.addGameToRoom(roomId, gameId, createdDate);
+        gameRepository.saveRoomGame(roomId, gameId, createdDate);
     }
 
     @Override
     public List<RoomDTO> getRoomGames(String roomId) throws IOException {
-        if (!gameDAO.roomExists(roomId)) {
+        if (!gameRepository.roomExists(roomId)) {
             throw new IOException("Room not found");
         }
         
-        return gameDAO.readRoomGames(roomId);
+        return gameRepository.findGamesByRoomId(roomId);
     }
 
     @Override
     public List<String> getRoomIds() throws IOException {
-        return gameDAO.readRoomIds();
+        return gameRepository.findRoomIds();
     }
 }
