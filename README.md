@@ -185,9 +185,16 @@ Returns the sample Hello resource. A missing or blank name defaults to `world`. 
 The persistence layer uses three query-oriented Cassandra tables. Their definitions
 are in `database/schema.cql`.
 
-The tables are independently accessed through `GameMoveDAOImpl`,
-`PlayerGameDAOImpl`, and `RoomGameDAOImpl`. `GameDAOImpl` is a thin
-compatibility facade for the existing service contract.
+The tables are accessed through a single aggregate-level `GameRepository`.
+`CassandraGameRepository` owns the prepared statements for moves, player
+history, and room history.
+
+The earlier flat-file implementation is also available through
+`FileGameRepository`, which implements the same `GameRepository` contract.
+It delegates file operations to `FileStorageServiceImpl` and stores records
+beneath the configured `RECORDS_DIR`, grouped by the `PLAYER_DIR`, `GAME_DIR`,
+and `ROOM_DIR` subdirectories. Cassandra remains the default repository used
+by the game service.
 
 Database settings can be overridden in `src/main/resources/config.properties`, system properties, or environment variables: `CASSANDRA_IP`, `CASSANDRA_PORT`, `CASSANDRA_KEYSPACE`, `CASSANDRA_GAME_MOVES_TABLE`, `CASSANDRA_PLAYER_GAMES_TABLE`, and `CASSANDRA_ROOM_GAMES_TABLE`.
 
@@ -209,7 +216,7 @@ The frontend sends `dateSaved` in local `YYYY-MM-DD HH:mm:ss` form. This is acce
 
 - `src/main/java/com/svi/tictactoe/resource`: REST resources
 - `src/main/java/com/svi/tictactoe/services`: business logic
-- `src/main/java/com/svi/tictactoe/dao`: persistence abstraction
+- `src/main/java/com/svi/tictactoe/repository`: game persistence abstraction and Cassandra implementation
 - `src/main/java/com/svi/tictactoe/dto`: JSON request/response models
 - `src/main/resources/config.properties`: storage and CORS configuration
 - `database/schema.cql`: local Cassandra keyspace and table definitions
